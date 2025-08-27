@@ -16,7 +16,6 @@ public class EtlProcessTests
     [Fact]
     public void RegistrationLogsDebugMessage()
     {
-        // Arrange
         var logger = new Mock<ILogger<TestEtlProcess>>();
         var process = new TestEtlProcess(logger.Object);
         var operation = new Mock<IOperation>();
@@ -24,18 +23,22 @@ public class EtlProcessTests
             .Setup(o => o.Name)
             .Returns(nameof(EtlProcessTests));
         
-        // Act
         process.Register(operation.Object);
         
-        // Assert
+        // We cannot verify on extension methods, so verify the low-level `Log`
+        // method instead.
         // https://adamstorr.co.uk/blog/mocking-ilogger-with-moq/
-        logger.Verify(
-            x => x.Log(
-                It.Is<LogLevel>(level => level == LogLevel.Debug),
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => true),
-                It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)), 
-            Times.Once());
+        //
+        // logger.Verify(
+        //     x => x.Log(
+        //         It.Is<LogLevel>(level => level == LogLevel.Debug),
+        //         It.IsAny<EventId>(),
+        //         It.Is<It.IsAnyType>((v, t) => true),
+        //         It.IsAny<Exception>(),
+        //         It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)), 
+        //     Times.Once());
+        //
+        logger.VerifyDebug(
+            $"Register {nameof(EtlProcessTests)} in {nameof(TestEtlProcess)}");
     }
 }
