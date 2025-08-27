@@ -64,16 +64,16 @@ public class DynamicDictionaryTests
         Assert.Equal("frotz", row.foo);
     }
 
-    // [Fact]
-    // public void MissingKeyThrowsException()
-    // {
-    //     dynamic row = new Row()
-    //     {
-    //         ["foo"] = "flotsam",
-    //     };
-    //     
-    //     row.ShouldThrowIfKeyNotFound();
-    //     
-    //     Assert.Throws<MissingKeyException>(() => row.bar);
-    // }
+    [Fact]
+    public void MissingKeyThrowsException()
+    {
+        dynamic row = new Row()
+        {
+            ["foo"] = "flotsam",
+        };
+        
+        row.ShouldThrowIfKeyNotFound();
+        
+        Assert.Throws<MissingKeyException>(() => row.bar);
+    }
 }

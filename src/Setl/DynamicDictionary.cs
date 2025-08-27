@@ -77,17 +77,17 @@ public class DynamicDictionary
         GetMemberBinder binder, 
         out object? result)
     {
-        // if (!this.items.TryGetValue(binder.Name, out result))
-        // {
-        //     if (this.throwIfMissing)
-        //     {
-        //         throw new MissingKeyException(binder.Name); 
-        //     }
-        // }
-        //
-        // return false;
+        if (this.items.TryGetValue(binder.Name, out result))
+        {
+            return true;
+        }
         
-        return this.items.TryGetValue(binder.Name, out result);
+        if (this.throwIfMissing)
+        {
+            throw new MissingKeyException(binder.Name);
+        }
+
+        return true;
     }
 
     public override bool TrySetMember(SetMemberBinder binder, object? value)
