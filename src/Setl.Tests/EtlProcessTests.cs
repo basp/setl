@@ -16,15 +16,18 @@ public class EtlProcessTests
     [Fact]
     public void RegistrationLogsDebugMessage()
     {
+        // Arrange
         var logger = new Mock<ILogger<TestEtlProcess>>();
         var process = new TestEtlProcess(logger.Object);
-        
         var operation = new Mock<IOperation>();
         operation
             .Setup(o => o.Name)
-            .Returns("EtlMockOperation");
+            .Returns(nameof(EtlProcessTests));
+        
+        // Act
         process.Register(operation.Object);
         
+        // Assert
         // https://adamstorr.co.uk/blog/mocking-ilogger-with-moq/
         logger.Verify(
             x => x.Log(
