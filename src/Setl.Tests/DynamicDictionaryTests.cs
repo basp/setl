@@ -5,7 +5,7 @@ public class DynamicDictionaryTests
     [Fact]
     public void DynamicObjectDictionary()
     {
-        dynamic row = new Row()
+        dynamic row = new Row
         {
             ["foo"] = "quux",
             ["bar"] = 123,
@@ -63,11 +63,23 @@ public class DynamicDictionaryTests
         Assert.Equal("quux", row.Foo);
         Assert.Equal("frotz", row.foo);
     }
+    
+    [Fact]
+    public void MissingKeyDoesNotThrowException()
+    {
+        dynamic row = new Row
+        {
+            ["foo"] = "flotsam",
+        };
+
+        Assert.Null(row.bar);
+        Assert.Equal("flotsam", row.foo);
+    }
 
     [Fact]
     public void MissingKeyThrowsException()
     {
-        dynamic row = new Row()
+        dynamic row = new Row
         {
             ["foo"] = "flotsam",
         };
