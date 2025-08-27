@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Setl.Tests;
+﻿namespace Setl.Tests;
 
 using Microsoft.Extensions.Logging;
 using Moq;

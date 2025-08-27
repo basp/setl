@@ -30,4 +30,19 @@ public class EtlProcessBase<T>
             this.Name);;
         return (T)this;
     }
+
+    public T RegisterLast(IOperation operation)
+    {
+        this.lastOperations.Add(operation);
+        this.logger.LogDebug(
+            "RegisterLast {Operation} in {Process}",
+            operation.Name,
+            this.Name);
+        return (T)this;
+    }
+
+    protected void MergeLastOperations()
+    {
+        this.operations.AddRange(this.lastOperations);
+    }
 }

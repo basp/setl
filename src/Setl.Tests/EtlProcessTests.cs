@@ -41,4 +41,20 @@ public class EtlProcessTests
         logger.VerifyDebug(
             $"Register {nameof(EtlProcessTests)} in {nameof(TestEtlProcess)}");
     }
+    
+    [Fact]
+    public void RegisterLastLogsDebugMessage()
+    {
+        var logger = new Mock<ILogger<TestEtlProcess>>();
+        var process = new TestEtlProcess(logger.Object);
+        var operation = new Mock<IOperation>();
+        operation
+            .Setup(o => o.Name)
+            .Returns(nameof(EtlProcessTests));
+        
+        process.RegisterLast(operation.Object);
+        
+        logger.VerifyDebug(
+            $"RegisterLast {nameof(EtlProcessTests)} in {nameof(TestEtlProcess)}");       
+    }
 }
