@@ -87,12 +87,12 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return true;
     }
 
-    public ObjectArrayKeys CreateKey()
+    public CompositeKey CreateKey()
     {
         return this.CreateKey(this.Columns.ToArray());
     }
 
-    public ObjectArrayKeys CreateKey(params string[] columns)
+    public CompositeKey CreateKey(params string[] columns)
     {
         var array = new object?[columns.Length];
         for (var i = 0; i < columns.Length; i++)
@@ -101,7 +101,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
             array[i] = this.items[column];
         }
 
-        return new ObjectArrayKeys(array);
+        return new CompositeKey(array);
     }
 
     public static Row FromObject(object? obj)

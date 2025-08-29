@@ -1,6 +1,6 @@
 ﻿namespace Setl.Tests;
 
-public class ObjectArrayKeysTests
+public class CompositeKeyTests
 {
     [Fact]
     public void TestEquality()
@@ -26,9 +26,9 @@ public class ObjectArrayKeysTests
             45.13,
         };
         
-        var keys1 = new ObjectArrayKeys(first);
-        var keys2 = new ObjectArrayKeys(second);
-        var keys3 = new ObjectArrayKeys(third);
+        var keys1 = new CompositeKey(first);
+        var keys2 = new CompositeKey(second);
+        var keys3 = new CompositeKey(third);
 
         Assert.Equal(keys1, keys2);
         Assert.Equal(keys1.GetHashCode(), keys2.GetHashCode());

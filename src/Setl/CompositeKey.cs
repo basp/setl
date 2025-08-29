@@ -1,10 +1,10 @@
 ﻿namespace Setl;
 
-public class ObjectArrayKeys
+public class CompositeKey
 {
     private readonly object?[] columnValues;
 
-    public ObjectArrayKeys(object?[] columnValues)
+    public CompositeKey(object?[] columnValues)
     {
         this.columnValues = columnValues;
     }
@@ -16,7 +16,7 @@ public class ObjectArrayKeys
             return true;
         }
 
-        if (obj is not ObjectArrayKeys other)
+        if (obj is not CompositeKey other)
         {
             return false;
         }
