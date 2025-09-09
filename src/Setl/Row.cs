@@ -157,6 +157,27 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return (T)this.ToObject(typeof(T));
     }
 
+    public bool TryGetInt(string key, out int value)
+    {
+        if (this.items.TryGetValue(key, out var obj))
+        {
+        }
+
+        throw new NotImplementedException();
+    }
+
+    public bool TryGetString(string key, out string? value)
+    {
+        value = null;
+        
+        if (this.items.TryGetValue(key, out var obj))
+        {
+            value = obj as string;
+        }
+        
+        return value != null;
+    }
+
     private static List<PropertyInfo> GetProperties(object obj)
     {
         var type = obj.GetType();

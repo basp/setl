@@ -36,7 +36,7 @@ public abstract class AbstractPipelineExecutor
                 this.OnCompleting();
                 var duration = DateTime.Now - start;
                 this.LogTrace(
-                    "Completed pipeline {Pipeline} in {Duration}",
+                    "Completed {Pipeline} in {Duration}",
                     name,
                     duration);
             }
@@ -44,7 +44,7 @@ public abstract class AbstractPipelineExecutor
             {
                 this.LogError(
                     ex, 
-                    "Failed to execute pipeline {Pipeline}", 
+                    "Failed to execute {Pipeline}", 
                     name);
             }
         }
@@ -52,7 +52,7 @@ public abstract class AbstractPipelineExecutor
         {
             this.LogError(
                 ex,
-                "Failed to create pipeline {Pipeline}",
+                "Failed to create {Pipeline}",
                 name);
         }
 

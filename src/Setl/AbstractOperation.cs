@@ -10,7 +10,7 @@ public abstract class AbstractOperation : LoggerAdapter, IOperation
     
     protected IPipelineExecutor? PipelineExecutor { get; set; }
     
-    public string Name => this.GetType().Name;
+    public virtual string Name => this.GetType().Name;
     
     public bool UseTransaction { get; set; } = true;
 

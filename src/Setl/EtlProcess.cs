@@ -33,7 +33,7 @@ public abstract class EtlProcess : EtlProcessBase<EtlProcess>, IDisposable
         this.Initialize();
         this.MergeLastOperations();
         this.RegisterToOperationEvents();
-        this.LogTrace("Starting to execute {Process}", this.Name);
+        this.LogTrace("Starting {Process}", this.Name);
         this.pipelineExecutor.Execute(
             this.Name, 
             this.operations, 

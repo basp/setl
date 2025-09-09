@@ -163,6 +163,10 @@ public class DynamicDictionary
 
     public string ToJson()
     {
+        // BUG:
+        // This has some issues when we try to serialize records.
+        // In that case, an EqualityContract key will be included in
+        // the `items` dictionary which leads to serialization errors.
         return JsonSerializer.Serialize(this.items);
     }
     

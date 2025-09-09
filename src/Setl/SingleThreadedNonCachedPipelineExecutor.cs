@@ -5,8 +5,8 @@ namespace Setl;
 public class SingleThreadedNonCachedPipelineExecutor
     : AbstractPipelineExecutor
 {
-    public SingleThreadedNonCachedPipelineExecutor(ILoggerFactory loggerFactory) 
-        : base(loggerFactory.CreateLogger<SingleThreadedNonCachedPipelineExecutor>())
+    public SingleThreadedNonCachedPipelineExecutor(ILogger logger) 
+        : base(logger)
     {
     }
 

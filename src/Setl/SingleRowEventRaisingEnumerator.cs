@@ -22,7 +22,7 @@ public class SingleRowEventRaisingEnumerator
 
     public void Dispose()
     {
-        this.innerEnumerator!.Dispose();
+        this.innerEnumerator?.Dispose();
     }
 
     public virtual bool MoveNext()

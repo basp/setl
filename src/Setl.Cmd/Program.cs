@@ -1,14 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Setl;
 
 using var loggerFactory = 
     LoggerFactory.Create(builder => 
-        builder.AddConsole());
+        builder.AddSimpleConsole(cfg =>
+            {
+                cfg.TimestampFormat = "HH:mm:ss ";
+            })
+            .SetMinimumLevel(LogLevel.Trace));
 
-var executor = new SingleThreadedNonCachedPipelineExecutor(loggerFactory);
-var process = new ExampleEtlProcess(
-    loggerFactory.CreateLogger<ExampleEtlProcess>(), 
-    executor);
+var logger = loggerFactory.CreateLogger<ExampleEtlProcess>(); 
+var executor = new SingleThreadedNonCachedPipelineExecutor(logger);
+var process = new ExampleEtlProcess(logger, executor);
 
 process.Execute();
 
@@ -37,10 +41,37 @@ internal class ExampleEtlProcess : EtlProcess
         this.logger = logger;
     }
 
+    public override string Name => "Example ETL Process";
+
     protected override void Initialize()
     {
         this.Register(new ExtractFooRecords(this.logger));
+        this.Register(new ConvertNameToUpperCase(this.logger));
+        this.Register(new ValidateFooRecords(this.logger));
+        this.Register(new HashFooRecords(this.logger));
+        this.Register(new SplitFooNames(this.logger));
         this.Register(new WriteFooRecords(this.logger));
+    }
+}
+
+internal class ValidateFooRecords : AbstractOperation
+{
+    public ValidateFooRecords(ILogger logger) : base(logger)
+    {
+    }
+
+    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        const string pattern = "TWO";
+        foreach (dynamic row in rows)
+        {
+            if (row.Name.Contains(pattern))
+            {
+                this.LogInformation("Name contains {Pattern}", pattern);
+            }
+
+            yield return row;
+        }
     }
 }
 
@@ -50,6 +81,8 @@ internal class WriteFooRecords : AbstractOperation
     {
     }
 
+    public override string Name => "Write Foo Records";
+
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
         foreach (var row in rows)
@@ -58,6 +91,46 @@ internal class WriteFooRecords : AbstractOperation
         }
 
         return [];
+    }
+}
+
+internal class HashFooRecords : AbstractOperation
+{
+    public HashFooRecords(ILogger logger) : base(logger)
+    {
+    }
+    
+    public override string Name => "Hash Foo Records";
+
+    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        foreach (dynamic row in rows)
+        {
+            var updated = row.Clone();
+            updated.Hash = updated.Id.GetHashCode();
+            yield return updated;
+        }
+    }
+}
+
+internal class SplitFooNames : AbstractOperation
+{
+    public SplitFooNames(ILogger logger) : base(logger)
+    {
+    }
+    
+    public override string Name => "Split Foo Names";
+
+    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        foreach (dynamic row in rows)
+        {
+            var updated = row.Clone();
+            var parts = row.Name.Split('_');
+            updated.FirstName = parts[0];
+            updated.LastName = parts[1];
+            yield return updated;
+        }
     }
 }
 
@@ -72,7 +145,6 @@ internal class ExtractBarRecords : AbstractOperation
             FooId = 1,
         },
     ];
-    
 
     public ExtractBarRecords(ILogger logger) : base(logger)
     {
@@ -81,6 +153,25 @@ internal class ExtractBarRecords : AbstractOperation
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
         throw new NotImplementedException();
+    }
+}
+
+internal class ConvertNameToUpperCase : AbstractOperation
+{
+    public ConvertNameToUpperCase(ILogger logger) : base(logger)
+    {
+    }
+    
+    public override string Name => "Convert Name To Upper Case";
+
+    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        foreach (dynamic row in rows)
+        {
+            var updated = row.Clone();
+            updated.Name = row["Name"].ToUpper();
+            yield return updated;
+        }
     }
 }
 
@@ -96,6 +187,8 @@ internal class ExtractFooRecords : AbstractOperation
     public ExtractFooRecords(ILogger logger) : base(logger)
     {
     }
+    
+    public override string Name => "Extract Foo Records";
 
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
