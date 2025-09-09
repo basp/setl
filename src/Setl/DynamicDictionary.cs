@@ -51,13 +51,18 @@ public class DynamicDictionary
     {
         get
         {
-            if (this.throwIfMissing && this.items.ContainsKey(key) == false)
+            if (this.items.TryGetValue(key, out var value))
+            {
+                this.lastAccess = key;
+                return value;
+            }
+            
+            if (this.throwIfMissing)
             {
                 throw new MissingKeyException(key);
             }
 
-            this.lastAccess = key;
-            return this.items[key];
+            return null;
         }
         set
         {
@@ -163,6 +168,7 @@ public class DynamicDictionary
     
     public override string ToString()
     {
+        // return string.Join(", ", this.Keys);
         return this.ToJson();
     }
 

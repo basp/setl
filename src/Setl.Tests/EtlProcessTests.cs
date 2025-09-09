@@ -8,7 +8,14 @@ public class EtlProcessTests
 {
     public class TestEtlProcess : EtlProcess
     {
-        public TestEtlProcess(ILogger<TestEtlProcess> logger) : base(logger)
+        public TestEtlProcess(
+            ILogger<TestEtlProcess> logger,
+            IPipelineExecutor pipelineExecutor) 
+            : base(logger, pipelineExecutor)
+        {
+        }
+
+        protected override void Initialize()
         {
         }
     }
@@ -17,7 +24,8 @@ public class EtlProcessTests
     public void RegistrationLogsDebugMessage()
     {
         var logger = new Mock<ILogger<TestEtlProcess>>();
-        var process = new TestEtlProcess(logger.Object);
+        var executor = new Mock<IPipelineExecutor>();
+        var process = new TestEtlProcess(logger.Object, executor.Object);
         var operation = new Mock<IOperation>();
         operation
             .Setup(o => o.Name)
@@ -46,7 +54,8 @@ public class EtlProcessTests
     public void RegisterLastLogsDebugMessage()
     {
         var logger = new Mock<ILogger<TestEtlProcess>>();
-        var process = new TestEtlProcess(logger.Object);
+        var pipelineExecutor = new Mock<IPipelineExecutor>();
+        var process = new TestEtlProcess(logger.Object,  pipelineExecutor.Object);
         var operation = new Mock<IOperation>();
         operation
             .Setup(o => o.Name)

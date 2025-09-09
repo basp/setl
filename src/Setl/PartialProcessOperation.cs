@@ -43,15 +43,18 @@ public class PartialProcessOperation
             }
         }
     }
-    
-    public void PrepareForExecution()
+
+    public void PrepareForExecution(IPipelineExecutor pipelineExecutor)
     {
-        
-        
         throw new NotImplementedException();
     }
 
-    public IEnumerable<Row> Execute()
+    public IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RaiseRowProcessed(Row row)
     {
         throw new NotImplementedException();
     }

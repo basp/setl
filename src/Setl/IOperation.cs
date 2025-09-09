@@ -10,9 +10,11 @@ public interface IOperation : IDisposable
 
     event Action<IOperation> OnFinishedProcessing;
     
-    void PrepareForExecution();
+    void PrepareForExecution(IPipelineExecutor pipelineExecutor);
     
-    IEnumerable<Row> Execute();
+    IEnumerable<Row> Execute(IEnumerable<Row> rows);
+    
+    void RaiseRowProcessed(Row row);
     
     void RaiseFinishedProcessing();
 

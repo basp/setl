@@ -2,18 +2,16 @@
 
 using Microsoft.Extensions.Logging;
 
-public class EtlProcessBase<T>
+public class EtlProcessBase<T> : LoggerAdapter
     where T : EtlProcessBase<T>
 {
-    private readonly ILogger logger;
-    
     private readonly List<IOperation> lastOperations = [];
     
     protected readonly List<IOperation> operations = [];
 
     protected EtlProcessBase(ILogger logger)
+        : base(logger)
     {
-        this.logger = logger;
     }
 
     public bool UseTransaction { get; set; } = true;
@@ -24,17 +22,17 @@ public class EtlProcessBase<T>
     {
         operation.UseTransaction = this.UseTransaction;
         this.operations.Add(operation);
-        this.logger.LogDebug(
+        this.LogDebug(
             "Register {Operation} in {Process}",
             operation.Name,
-            this.Name);;
+            this.Name);
         return (T)this;
     }
 
     public T RegisterLast(IOperation operation)
     {
         this.lastOperations.Add(operation);
-        this.logger.LogDebug(
+        this.LogDebug(
             "RegisterLast {Operation} in {Process}",
             operation.Name,
             this.Name);
