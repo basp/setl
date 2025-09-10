@@ -10,7 +10,8 @@ using var loggerFactory =
             })
             .SetMinimumLevel(LogLevel.Trace));
 
-Example1.Run(loggerFactory);
+// Example1.Run(loggerFactory);
+Example2.Run(loggerFactory);
 
 internal static class Example2
 {
@@ -28,10 +29,37 @@ internal static class Example2
 
         protected override void Initialize()
         {
-            throw new NotImplementedException();
+            this.Register(new ExtractFakeData(this.logger));
+            this.Register(new WriteFakeData(this.logger));
         }
     }
 
+    private class WriteFakeData : AbstractOperation
+    {
+        private readonly ILogger logger;
+    
+        // Mandatory `ILogger` ctor
+        public WriteFakeData(ILogger logger) : base(logger)
+        {
+            this.logger = logger;
+        }
+
+        // Custom name (optional)
+        public override string Name => "write-fake-data";
+
+
+        // Yield our fake object data source as `Row` instances
+        public override IEnumerable<Row> Execute(
+            IEnumerable<Row> rows)
+        {
+            foreach(var row in rows)
+            {
+                this.logger.LogInformation( "Write: {row}", row);
+                yield return row;
+            }
+        }
+    }
+    
     private class ExtractFakeData : AbstractOperation
     {
         // A hard coded *fake-data* source
