@@ -48,14 +48,14 @@ internal class ExampleEtlProcess : EtlProcess
     {
         this.Register(new ExtractFooRecords(this.logger));
         this.Register(new ConvertNameToUpperCase(this.logger));
-        // this.Register(new WriteFooRecords("write-before-validate", this.logger));
+        this.Register(new WriteFooRecords("write-before-validate", this.logger));
         this.Register(new ValidateFooRecords(this.logger));
         this.Register(new HashFooRecords(this.logger));
         this.Register(new SplitFooNames(this.logger));
-        // this.Register(new WriteFooRecords("final-write", this.logger)
-        // {
-        //     IsFinal = true,
-        // });
+        this.Register(new WriteFooRecords("final-write", this.logger)
+        {
+            IsFinal = true,
+        });
     }
 
     protected override void OnRowProcessed(IOperation op, Row row)
@@ -113,10 +113,15 @@ internal class WriteFooRecords : AbstractOperation
 
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
+        var rowCount = 0;
         foreach (var row in rows)
         {
-            var msg = $"{this.GetType().Name,20}: {row}";
-            Console.WriteLine(msg);
+            rowCount += 1;
+            this.LogInformation(
+                "#{RowCount} {Operation}: {Row}",
+                rowCount,
+                this.GetType().Name, 
+                row);
             row["IsFinal"] = this.IsFinal;
             yield return row;
         }
