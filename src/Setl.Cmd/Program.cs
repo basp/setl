@@ -21,6 +21,11 @@ internal static class Example5
 
         var executor = new SingleThreadedPipelineExecutor(logger);
         
+        // We can name operations explicitly by wrapping them in a
+        // `NamedOperation` at definition time. I don't really like this
+        // style since it's a bit overly verbose. It's a bit cleaner to
+        // apply the wrappers at registration time (this also prevents the
+        // double `logger' injection.
         var extract = new NamedOperation(
             "setl-extract", 
             new SimpleExtract(
@@ -33,31 +38,21 @@ internal static class Example5
                 logger), 
             logger);
 
-        var transform = new NamedOperation(
-            "setl-transform-1",
-            new SimpleTransform(
-                row =>
-                {
-                    logger.LogInformation("Transform: {Row}", row);
-                    row["Transformed"] = DateTime.UtcNow;
-                    return row;
-                },
-                logger),
+        // However, we can also just define our *base* (unnamed)
+        // transformations.
+        var transform = new SimpleTransform(
+            row =>
+            {
+                logger.LogInformation("Transform: {Row}", row);
+                row["Transformed"] = DateTime.UtcNow;
+                return row;
+            },
             logger);
-
-        var delay = new Func<int, SimpleTransform>(ms => 
-            new SimpleTransform(
-                row =>
-                {
-                    Thread.Sleep(ms);
-                    return row;
-                }, 
-                logger));
         
         var dynTransform = new SimpleDynamicTransform(
             row =>
             {
-                logger.LogInformation("Processed: {Row}", (Row)row);
+                logger.LogInformation("Process: {Row}", (Row)row);
                 row.Processed = DateTime.UtcNow;
                 return row;
             },
@@ -71,10 +66,29 @@ internal static class Example5
             },
             logger);
 
+
+        var delay = new Func<int, SimpleTransform>(ms => 
+            new SimpleTransform(
+                row =>
+                {
+                    Thread.Sleep(ms);
+                    return row;
+                }, 
+                logger));
+
         var process = new SimpleProcess(ops =>
             {
                 ops.Register(extract);
-                ops.Register(transform);
+                
+                // And we can also just wait to wrap our operations when
+                // we are registering them. Personally, I prefer applying
+                // wrappers at this point. It's a bit more declarative, and
+                // your core operations are more cleanly defined.
+                ops.Register(
+                    new NamedOperation(
+                        "setl-transform",
+                        transform,
+                        logger));
                 ops.Register(
                     new NamedOperation(
                         "delay-1",
