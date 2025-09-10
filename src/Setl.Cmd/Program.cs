@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Setl;
 
 using var loggerFactory = 
@@ -7,15 +6,81 @@ using var loggerFactory =
         builder.AddSimpleConsole(cfg =>
             {
                 cfg.TimestampFormat = "HH:mm:ss ";
-                cfg.SingleLine = true;
+                cfg.SingleLine = false;
             })
             .SetMinimumLevel(LogLevel.Trace));
 
-var logger = loggerFactory.CreateLogger<ExampleEtlProcess>(); 
-var executor = new SingleThreadedNonCachedPipelineExecutor(logger);
-var process = new ExampleEtlProcess(logger, executor);
+Example1.Run(loggerFactory);
 
-process.Execute();
+internal static class Example2
+{
+    private class ProcessNumbersExample : EtlProcess
+    {
+        private readonly ILogger logger;
+        
+        public ProcessNumbersExample(
+            ILogger logger, 
+            IPipelineExecutor executor)
+        : base(logger, executor)
+        {        
+            this.logger = logger;
+        }
+
+        protected override void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    private class ExtractFakeData : AbstractOperation
+    {
+        // A hard coded *fake-data* source
+        private readonly List<Foo> sourceFoo =
+        [
+            new() { Id = 1, Name = "Foo_One" },
+            new() { Id = 2, Name = "Foo_Two" },
+            new() { Id = 3, Name = "Foo_Three" },
+        ];
+
+        // Mandatory `ILogger` ctor
+        public ExtractFakeData(ILogger logger) : base(logger)
+        {
+        }
+    
+        // Custom name (optional)
+        public override string Name => "extract-fake-data";
+
+
+        // Yield our fake object data source as `Row` instances
+        public override IEnumerable<Row> Execute(
+            IEnumerable<Row> rows)
+        {
+            foreach (var foo in sourceFoo)
+            {
+                yield return Row.FromObject(foo);
+            }
+        }
+    }
+    
+    public static void Run(ILoggerFactory loggerFactory)
+    {
+        var logger = loggerFactory.CreateLogger<ProcessNumbersExample>(); 
+        var executor = new SingleThreadedNonCachedPipelineExecutor(logger);
+        var process = new ProcessNumbersExample(logger, executor);
+        process.Execute();
+    }
+}
+
+internal static class Example1
+{
+    public static void Run(ILoggerFactory loggerFactory)
+    {
+        var logger = loggerFactory.CreateLogger<ExampleEtlProcess>(); 
+        var executor = new SingleThreadedNonCachedPipelineExecutor(logger);
+        var process = new ExampleEtlProcess(logger, executor);
+        process.Execute();
+    }
+}
 
 internal class Foo
 {
@@ -56,6 +121,11 @@ internal class ExampleEtlProcess : EtlProcess
         {
             IsFinal = true,
         });
+    }
+
+    protected override void PostProcessing()
+    {
+        this.logger.LogInformation("No post processing required");
     }
 
     protected override void OnRowProcessed(IOperation op, Row row)
