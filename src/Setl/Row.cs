@@ -6,9 +6,9 @@ using System.Reflection;
 
 public class Row : DynamicDictionary, IEquatable<Row>
 {
-    private static Dictionary<Type, List<PropertyInfo>> propertyCache = new();
+    private static readonly Dictionary<Type, List<PropertyInfo>> propertyCache = new();
 
-    private static Dictionary<Type, List<FieldInfo>> fieldCache = new();
+    private static readonly Dictionary<Type, List<FieldInfo>> fieldCache = new();
 
     public Row(StringComparer comparer)
         : base(new Dictionary<string, object?>(), comparer)

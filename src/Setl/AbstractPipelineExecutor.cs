@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Humanizer;
+using Microsoft.Extensions.Logging;
 
 namespace Setl;
 
@@ -35,9 +36,11 @@ public abstract class AbstractPipelineExecutor
                 this.ExecutePipeline(enumerablePipeline);
                 this.OnCompleting();
                 var duration = DateTime.Now - start;
+                var humanizedDuration = duration.Humanize();
                 this.LogTrace(
-                    "Completed {Pipeline} in {Duration}",
+                    "Completed {Pipeline} in {HumanizedDuration} ({Duration})",
                     name,
+                    humanizedDuration,
                     duration);
             }
             catch (Exception ex)

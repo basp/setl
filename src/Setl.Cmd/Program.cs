@@ -1,509 +1,186 @@
 ﻿using Microsoft.Extensions.Logging;
 using Setl;
 
-using var loggerFactory = 
-    LoggerFactory.Create(builder => 
+using var loggerFactory =
+    LoggerFactory.Create(builder =>
         builder.AddSimpleConsole(cfg =>
             {
                 cfg.TimestampFormat = "HH:mm:ss ";
-                cfg.SingleLine = false;
+                cfg.SingleLine = true;
             })
             .SetMinimumLevel(LogLevel.Trace));
 
 // Example1.Run(loggerFactory);
 // Example2.Run(loggerFactory);
-Example3.Run(loggerFactory);
+// Example3.Run(loggerFactory);
+Example4.Run(loggerFactory);
 
-internal class Example3
+internal class FakeExtract : AbstractOperation
 {
-    public static void Run(ILoggerFactory loggerFactory)
+    private readonly IEnumerable<object> subjects;
+    
+    public FakeExtract(IEnumerable<object> subjects, ILogger logger) 
+        : base(logger)
     {
-        var logger = loggerFactory.CreateLogger<Example3>();
-        var executor = new SingleThreadedPipelineExecutor(logger);
-        using var process = new TestProcess(logger, executor);
-        process.Execute();
+        this.subjects = subjects;
     }
 
-    private class TestProcess : EtlProcess
+    public override IEnumerable<Row> Execute(IEnumerable<Row> _) =>
+        this.subjects.Select(Row.FromObject);
+}
+
+internal class WriteRow : AbstractOperation
+{
+    public WriteRow(ILogger logger) : base(logger)
+    {
+    }
+
+    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        foreach(var row in rows)
+        {
+            this.LogDebug("Row: {Row}", row);
+            yield return row;
+        }
+    }
+}
+
+internal class TestAggregate : AbstractAggregationOperation
+{
+    public TestAggregate(ILogger logger) : base(logger)
+    {
+    }
+
+    protected override void Accumulate(Row row, Row aggregate)
+    {
+        if (!row.TryGetString("Category", out var category))
+        {
+            this.LogWarning("Row does not contain Category column.");
+            return;
+        }
+        
+        const string categoryKey = "category";
+        const string groupKey = "group";
+        
+        if (!aggregate.ContainsKey(groupKey))
+        {
+            aggregate[categoryKey] = category;
+            aggregate[groupKey] = new List<Row>();
+        }
+
+        
+        var group = aggregate[groupKey] as List<Row>;
+        group?.Add(row);
+    }
+    
+    protected override string[] GetColumnsToGroupBy() => ["Category"];
+}
+
+internal class CountSubjects : AbstractOperation
+{
+    public CountSubjects(ILogger logger) : base(logger)
+    {
+    }
+
+    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        foreach (dynamic row in rows)
+        {
+            row.Count = row.Group.Count;
+            yield return row;
+        }
+    }
+}
+
+internal class Example4
+{
+    private class TestAggregationProcess : EtlProcess
     {
         private readonly ILogger logger;
+        private readonly Action<EtlProcess> register;
         
-        public TestProcess(
+        public TestAggregationProcess(
             ILogger logger, 
-            IPipelineExecutor pipelineExecutor) 
+            IPipelineExecutor pipelineExecutor,
+            Action<EtlProcess> register) 
             : base(logger, pipelineExecutor)
         {
-            this.logger = logger;       
+            this.logger = logger;
+            this.register = register;
         }
 
         protected override void Initialize()
         {
-            var join = 
-                new TestJoin(this.logger)
-                    .Left(new ExtractSubjects(this.logger))
-                    .Right(new ExtractOrgs(this.logger));
-            this.Register(join);
-            this.Register(new WriteRow(this.logger));
+            this.register(this);
         }
     }
     
     private class Subject
     {
         public int Id { get; set; }
-
+        
         public string? Name { get; set; }
-        
-        public int OrgId { get; set; }
+
+        public string? Category { get; set; }
     }
 
-    private class Org
-    {
-        public int Id { get; set; }
-        
-        public string? Code { get; set; }
-        
-        public string? Name { get; set; }   
-    }
-
-    private class WriteRow : AbstractOperation
-    {
-        public WriteRow(ILogger logger) : base(logger)
-        {
-        }
-
-        public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-        {
-            foreach (var row in rows)
-            {
-                this.LogInformation("Write: {row}", row);
-                yield return row;
-            }
-        }
-    }
-    
-    private class TestJoin : NestedLoopsJoinOperation
-    {
-        public TestJoin(ILogger logger) : base(logger)
-        {
-        }
-
-        protected override Row MergeRows(Row leftRow, Row rightRow)
-        {
-            var row = leftRow.Clone();
-            row["OrgCode"] = rightRow["Code"];
-            row["OrgName"] = rightRow["Name"];
-            return row;
-        }
-
-        protected override void LeftOrphanRow(Row row)
-        {
-            this.LogInformation("Left orphan row: {row}", row);
-        }
-
-        protected override bool MatchJoinCondition(Row leftRow, Row rightRow)
-        {
-            // Inner join
-            // return Equals(leftRow["OrgId"], rightRow["Id"]);
-            
-            // Left join
-            // return 
-            //     Equals(leftRow["OrgId"], rightRow["Id"]) || 
-            //     rightRow["Id"] == null;
-            
-            // Right join
-            return
-                Equals(leftRow["OrgId"], rightRow["Id"]) || 
-                leftRow["OrgId"] == null;
-        }
-    }
-
-    private class ExtractSubjects : AbstractOperation
-    {
-        private readonly List<Subject> subjects =
-        [
-            new()
-            {
-                Id = 1,
-                Name = "Subject_One",
-                OrgId = 1,
-            },
-            new()
-            {
-                Id = 2,
-                Name = "Subject_Two",
-                OrgId = 1,
-            },
-            new()
-            {
-                Id = 3,
-                Name = "Subject_Three",
-                OrgId = 2,
-            },
-            new()
-            {
-                Id = 4,
-                Name = "Subject_Four",
-                OrgId = 3,
-            },
-        ];
-        
-        public ExtractSubjects(ILogger logger) : base(logger)
-        {
-        }
-
-        public override IEnumerable<Row> Execute(IEnumerable<Row> rows) =>
-            this.subjects.Select(Row.FromObject);
-    }
-    
-    private class ExtractOrgs : AbstractOperation
-    {
-        private readonly List<Org> orgs =
-        [
-            new()
-            {
-                Id = 1,
-                Code = "ABC",
-                Name = "Org_One",
-            },
-            new()
-            {
-                Id = 2,
-                Code = "DEF",
-                Name = "Org_Two",
-            },
-            new()
-            {
-                Id = 4,
-                Code = "GHI",
-                Name = "Org_Four",
-            }
-        ];
-        
-        public ExtractOrgs(ILogger logger) : base(logger)
-        {
-        }
-
-        public override IEnumerable<Row> Execute(IEnumerable<Row> rows) =>
-            this.orgs.Select(Row.FromObject);
-    }
-}
-
-internal static class Example2
-{
-    private class ProcessNumbersExample : EtlProcess
-    {
-        private readonly ILogger logger;
-        
-        public ProcessNumbersExample(
-            ILogger logger, 
-            IPipelineExecutor executor)
-        : base(logger, executor)
-        {        
-            this.logger = logger;
-        }
-
-        protected override void Initialize()
-        {
-            this.Register(new ExtractFakeData(this.logger));
-            this.Register(new WriteFakeData(this.logger));
-        }
-    }
-
-    private class WriteFakeData : AbstractOperation
-    {
-        private readonly ILogger logger;
-    
-        // Mandatory `ILogger` ctor
-        public WriteFakeData(ILogger logger) : base(logger)
-        {
-            this.logger = logger;
-        }
-
-        // Custom name (optional)
-        public override string Name => "write-fake-data";
-
-
-        // Yield our fake object data source as `Row` instances
-        public override IEnumerable<Row> Execute(
-            IEnumerable<Row> rows)
-        {
-            foreach(var row in rows)
-            {
-                this.logger.LogInformation( "Write: {row}", row);
-                yield return row;
-            }
-        }
-    }
-    
-    private class ExtractFakeData : AbstractOperation
-    {
-        // A hard coded *fake-data* source
-        private readonly List<Foo> sourceFoo =
-        [
-            new() { Id = 1, Name = "Foo_One" },
-            new() { Id = 2, Name = "Foo_Two" },
-            new() { Id = 3, Name = "Foo_Three" },
-        ];
-
-        // Mandatory `ILogger` ctor
-        public ExtractFakeData(ILogger logger) : base(logger)
-        {
-        }
-    
-        // Custom name (optional)
-        public override string Name => "extract-fake-data";
-
-
-        // Yield our fake object data source as `Row` instances
-        public override IEnumerable<Row> Execute(
-            IEnumerable<Row> rows)
-        {
-            foreach (var foo in sourceFoo)
-            {
-                yield return Row.FromObject(foo);
-            }
-        }
-    }
-    
-    public static void Run(ILoggerFactory loggerFactory)
-    {
-        var logger = loggerFactory.CreateLogger<ProcessNumbersExample>(); 
-        // var executor = new SingleThreadedNonCachedPipelineExecutor(logger);
-        var executor = new SingleThreadedPipelineExecutor(logger);
-        var process = new ProcessNumbersExample(logger, executor);
-        process.Execute();
-    }
-}
-
-internal static class Example1
-{
-    public static void Run(ILoggerFactory loggerFactory)
-    {
-        var logger = loggerFactory.CreateLogger<ExampleEtlProcess>(); 
-        // var executor = new SingleThreadedNonCachedPipelineExecutor(logger);
-        var executor = new SingleThreadedPipelineExecutor(logger);
-        var process = new ExampleEtlProcess(logger, executor);
-        process.Execute();
-    }
-}
-
-internal class Foo
-{
-    public int Id { get; set; }
-    public string? Name { get; set; }
-}
-
-internal class Bar
-{
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public int FooId { get; set; }
-}
-
-internal class ExampleEtlProcess : EtlProcess
-{
-    private readonly ILogger logger;
-    
-    public ExampleEtlProcess(
-        ILogger logger, 
-        IPipelineExecutor pipelineExecutor) 
-        : base(logger, pipelineExecutor)
-    {
-        this.logger = logger;
-    }
-
-    public override string Name => "example-etl-process";
-
-    protected override void Initialize()
-    {
-        this.Register(new ExtractFooRecords(this.logger));
-        this.Register(new ConvertNameToUpperCase(this.logger));
-        this.Register(new WriteFooRecords("write-before-validate", this.logger));
-        this.Register(new ValidateFooRecords(this.logger));
-        this.Register(new HashFooRecords(this.logger));
-        this.Register(new SplitFooNames(this.logger));
-        this.Register(new WriteFooRecords("final-write", this.logger)
-        {
-            IsFinal = true,
-        });
-    }
-
-    protected override void PostProcessing()
-    {
-        this.logger.LogInformation("No post processing required");
-    }
-
-    protected override void RowProcessed(IOperation op, Row row)
-    {
-        this.logger.LogTrace(
-            "Row processed [{Operation}]: {Row}", 
-            op.Name, 
-            row);
-    }
-
-    protected override void FinishedProcessing(IOperation op)
-    {
-        this.logger.LogTrace(
-            "Finished processing operation {Operation}", 
-            op.Name);
-    }
-}
-
-internal class ValidateFooRecords : AbstractOperation
-{
-    public ValidateFooRecords(ILogger logger) : base(logger)
-    {
-    }
-
-    public override string Name => "validate-foo-records";
-
-    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-    {
-        const string pattern = "TWO";
-        foreach (dynamic row in rows)
-        {
-            if (row.Name.Contains(pattern))
-            {
-                this.LogInformation(
-                    "Name contains {Pattern}; skipping", 
-                    pattern);
-                continue;
-            }
-
-            yield return row;
-        }
-    }
-}
-
-internal class WriteFooRecords : AbstractOperation
-{
-    public WriteFooRecords(string name, ILogger logger) : base(logger)
-    {
-        this.Name = name;
-    }
-
-    public override string Name { get; }
-    
-    public bool IsFinal { get; set; }
-
-    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-    {
-        var rowCount = 0;
-        foreach (var row in rows)
-        {
-            rowCount += 1;
-            this.LogInformation(
-                "#{RowCount} {Operation}: {Row}",
-                rowCount,
-                this.GetType().Name, 
-                row);
-            row["IsFinal"] = this.IsFinal;
-            yield return row;
-        }
-    }
-}
-
-internal class HashFooRecords : AbstractOperation
-{
-    public HashFooRecords(ILogger logger) : base(logger)
-    {
-    }
-    
-    public override string Name => "hash-records";
-
-    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-    {
-        foreach (dynamic row in rows)
-        {
-            var updated = row.Clone();
-            updated.Hash = updated.Id.GetHashCode();
-            yield return updated;
-        }
-    }
-}
-
-internal class SplitFooNames : AbstractOperation
-{
-    public SplitFooNames(ILogger logger) : base(logger)
-    {
-    }
-    
-    public override string Name => "split-names";
-
-    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-    {
-        foreach (dynamic row in rows)
-        {
-            var updated = row.Clone();
-            var parts = row.Name.Split('_');
-            updated.FirstName = parts[0];
-            updated.LastName = parts[1];
-            yield return updated;
-        }
-    }
-}
-
-internal class ExtractBarRecords : AbstractOperation
-{
-    private readonly List<Bar> sourceBar =
+    private static readonly List<Subject> subjects =
     [
         new()
         {
             Id = 1,
-            Name = "Bar_One",
-            FooId = 1,
+            Name = "Subject_One",
+            Category = "Category_One",
         },
+        new()
+        {
+            Id = 2,
+            Name = "Subject_Two",
+            Category = "Category_One",
+        },
+        new()
+        {
+            Id = 3,
+            Name = "Subject_Three",
+            Category = "Category_Two",
+        },
+        new()
+        {
+            Id = 4,
+            Name = "Subject_Four",
+            Category = "Category_Two",
+        },
+        new()
+        {
+            Id = 5,
+            Name = "Subject_Five",
+            Category = "Category_Three",
+        },
+        new()
+        {
+            Id = 6,
+            Name = "Subject_Six",
+            Category = "Category_One",
+        }
     ];
 
-    public ExtractBarRecords(ILogger logger) : base(logger)
+    public static void Run(ILoggerFactory loggerFactory)
     {
-    }
-
-    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-internal class ConvertNameToUpperCase : AbstractOperation
-{
-    public ConvertNameToUpperCase(ILogger logger) : base(logger)
-    {
-    }
-    
-    public override string Name => "name-to-upper-case";
-
-    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-    {
-        foreach (dynamic row in rows)
-        {
-            var updated = row.Clone();
-            updated.Name = row["Name"].ToUpper();
-            yield return updated;
-        }
-    }
-}
-
-internal class ExtractFooRecords : AbstractOperation
-{
-    private readonly List<Foo> sourceFoo =
-    [
-        new() { Id = 1, Name = "Foo_One" },
-        new() { Id = 2, Name = "Foo_Two" },
-        new() { Id = 3, Name = "Foo_Three" },
-    ];
-
-    public ExtractFooRecords(ILogger logger) : base(logger)
-    {
-    }
-    
-    public override string Name => "extract-foo-records";
-
-    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
-    {
-        foreach (var foo in sourceFoo)
-        {
-            yield return Row.FromObject(foo);
-        }
+        var logger = loggerFactory.CreateLogger<Example4>();
+        var extract = new FakeExtract(subjects, logger);
+        var aggregate = new TestAggregate(logger);
+        var count = new CountSubjects(logger);
+        var write = new WriteRow(logger);
+        var process = new TestAggregationProcess(
+            logger, 
+            new SingleThreadedPipelineExecutor(logger), 
+            p =>
+            {
+                p.Register(extract);
+                p.Register(aggregate);
+                p.Register(count);
+                p.Register(write);
+            });
+        process.Execute();
     }
 }
