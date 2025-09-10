@@ -7,6 +7,7 @@ using var loggerFactory =
         builder.AddSimpleConsole(cfg =>
             {
                 cfg.TimestampFormat = "HH:mm:ss ";
+                cfg.SingleLine = true;
             })
             .SetMinimumLevel(LogLevel.Trace));
 
@@ -41,16 +42,35 @@ internal class ExampleEtlProcess : EtlProcess
         this.logger = logger;
     }
 
-    public override string Name => "Example ETL Process";
+    public override string Name => "example-etl-process";
 
     protected override void Initialize()
     {
         this.Register(new ExtractFooRecords(this.logger));
         this.Register(new ConvertNameToUpperCase(this.logger));
+        // this.Register(new WriteFooRecords("write-before-validate", this.logger));
         this.Register(new ValidateFooRecords(this.logger));
         this.Register(new HashFooRecords(this.logger));
         this.Register(new SplitFooNames(this.logger));
-        this.Register(new WriteFooRecords(this.logger));
+        // this.Register(new WriteFooRecords("final-write", this.logger)
+        // {
+        //     IsFinal = true,
+        // });
+    }
+
+    protected override void OnRowProcessed(IOperation op, Row row)
+    {
+        this.logger.LogTrace(
+            "Row processed [{Operation}]: {Row}", 
+            op.Name, 
+            row);
+    }
+
+    protected override void OnFinishedProcessing(IOperation op)
+    {
+        this.logger.LogTrace(
+            "Finished processing operation {Operation}", 
+            op.Name);
     }
 }
 
@@ -60,6 +80,8 @@ internal class ValidateFooRecords : AbstractOperation
     {
     }
 
+    public override string Name => "validate-foo-records";
+
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
         const string pattern = "TWO";
@@ -67,7 +89,10 @@ internal class ValidateFooRecords : AbstractOperation
         {
             if (row.Name.Contains(pattern))
             {
-                this.LogInformation("Name contains {Pattern}", pattern);
+                this.LogInformation(
+                    "Name contains {Pattern}; skipping", 
+                    pattern);
+                continue;
             }
 
             yield return row;
@@ -77,20 +102,24 @@ internal class ValidateFooRecords : AbstractOperation
 
 internal class WriteFooRecords : AbstractOperation
 {
-    public WriteFooRecords(ILogger logger) : base(logger)
+    public WriteFooRecords(string name, ILogger logger) : base(logger)
     {
+        this.Name = name;
     }
 
-    public override string Name => "Write Foo Records";
+    public override string Name { get; }
+    
+    public bool IsFinal { get; set; }
 
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
         foreach (var row in rows)
         {
-            Console.WriteLine(row);
+            var msg = $"{this.GetType().Name,20}: {row}";
+            Console.WriteLine(msg);
+            row["IsFinal"] = this.IsFinal;
+            yield return row;
         }
-
-        return [];
     }
 }
 
@@ -100,7 +129,7 @@ internal class HashFooRecords : AbstractOperation
     {
     }
     
-    public override string Name => "Hash Foo Records";
+    public override string Name => "hash-records";
 
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
@@ -119,7 +148,7 @@ internal class SplitFooNames : AbstractOperation
     {
     }
     
-    public override string Name => "Split Foo Names";
+    public override string Name => "split-names";
 
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
@@ -162,7 +191,7 @@ internal class ConvertNameToUpperCase : AbstractOperation
     {
     }
     
-    public override string Name => "Convert Name To Upper Case";
+    public override string Name => "name-to-upper-case";
 
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
@@ -188,7 +217,7 @@ internal class ExtractFooRecords : AbstractOperation
     {
     }
     
-    public override string Name => "Extract Foo Records";
+    public override string Name => "extract-foo-records";
 
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
