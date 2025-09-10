@@ -6,9 +6,9 @@ public interface IOperation : IDisposable
     
     bool UseTransaction { get; set; }
 
-    event Action<IOperation, Row> OnRowProcessed;
+    event Action<IOperation, Row> RowProcessed;
 
-    event Action<IOperation> OnFinishedProcessing;
+    event Action<IOperation> FinishedProcessing;
     
     void PrepareForExecution(IPipelineExecutor pipelineExecutor);
     

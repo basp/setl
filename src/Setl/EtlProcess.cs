@@ -67,11 +67,11 @@ public abstract class EtlProcess : EtlProcessBase<EtlProcess>, IDisposable
     
     protected abstract void Initialize();
 
-    protected virtual void OnFinishedProcessing(IOperation op)
+    protected virtual void FinishedProcessing(IOperation op)
     {
     }
 
-    protected virtual void OnRowProcessed(IOperation op, Row row)
+    protected virtual void RowProcessed(IOperation op, Row row)
     {
     }
     
@@ -83,8 +83,8 @@ public abstract class EtlProcess : EtlProcessBase<EtlProcess>, IDisposable
     {
         foreach (var op in this.operations)
         {
-            op.OnRowProcessed += this.OnRowProcessed;
-            op.OnFinishedProcessing += this.OnFinishedProcessing;
+            op.RowProcessed += this.RowProcessed;
+            op.FinishedProcessing += this.FinishedProcessing;
         }
     }
 }

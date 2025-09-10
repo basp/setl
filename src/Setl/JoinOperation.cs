@@ -20,51 +20,51 @@ public abstract class JoinOperation : AbstractJoinOperation
     {
     }
 
-    public override event Action<IOperation, Row>? OnRowProcessed
+    public override event Action<IOperation, Row>? RowProcessed
     {
         add
         {
             var ops = new[] { this.left, this.right };
             foreach (var op in ops)
             {
-                op.OnRowProcessed += value;
+                op.RowProcessed += value;
             }
             
-            base.OnRowProcessed += value;
+            base.RowProcessed += value;
         }
         remove
         {
             var ops = new [] { this.left, this.right };
             foreach (var op in ops)
             {
-                op.OnRowProcessed -= value;           
+                op.RowProcessed -= value;           
             }
             
-            base.OnRowProcessed -= value;
+            base.RowProcessed -= value;
         }
     }
 
-    public override event Action<IOperation>? OnFinishedProcessing
+    public override event Action<IOperation>? FinishedProcessing
     {
         add
         {
             var ops = new [] { this.left, this.right };
             foreach (var op in ops)
             {
-                op.OnFinishedProcessing += value;
+                op.FinishedProcessing += value;
             }
             
-            base.OnFinishedProcessing += value;
+            base.FinishedProcessing += value;
         }
         remove
         {
             var ops = new [] { this.left, this.right };
             foreach (var op in ops)
             {
-                op.OnFinishedProcessing -= value;           
+                op.FinishedProcessing -= value;           
             }
             
-            base.OnFinishedProcessing -= value;
+            base.FinishedProcessing -= value;
         }
     }
 

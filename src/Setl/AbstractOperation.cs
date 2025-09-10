@@ -20,13 +20,13 @@ public abstract class AbstractOperation : LoggerAdapter, IOperation
 
     public OperationStatistics Statistics { get; } = new();
 
-    public virtual event Action<IOperation, Row>? OnRowProcessed
+    public virtual event Action<IOperation, Row>? RowProcessed
     {
         add => this.onRowProcessed += value;
         remove => this.onRowProcessed -= value;
     }
 
-    public virtual event Action<IOperation>? OnFinishedProcessing
+    public virtual event Action<IOperation>? FinishedProcessing
     {
         add => this.onFinishedProcessing += value;
         remove => this.onFinishedProcessing -= value;

@@ -2,6 +2,7 @@
 
 namespace Setl;
 
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class PartialProcessOperation
     : EtlProcessBase<PartialProcessOperation>, IOperation
 {
@@ -12,39 +13,40 @@ public class PartialProcessOperation
     {
     }
     
+    // ReSharper disable once MemberCanBePrivate.Global
     public OperationStatistics Statistics { get; } = new();
 
-    public event Action<IOperation, Row>? OnRowProcessed
+    public event Action<IOperation, Row>? RowProcessed
     {
         add
         {
             foreach(var op in this.operations)
             {
-                op.OnRowProcessed += value;
+                op.RowProcessed += value;
             }
         }
         remove
         {
             foreach(var op in this.operations)
             {
-                op.OnRowProcessed -= value;
+                op.RowProcessed -= value;
             }
         }
     }
-    public event Action<IOperation>? OnFinishedProcessing
+    public event Action<IOperation>? FinishedProcessing
     {
         add
         {
             foreach(var op in this.operations)
             {
-                op.OnFinishedProcessing += value;
+                op.FinishedProcessing += value;
             }
         }
         remove
         {
             foreach (var op in this.operations)
             {
-                op.OnFinishedProcessing -= value;           
+                op.FinishedProcessing -= value;           
             }
         }
     }

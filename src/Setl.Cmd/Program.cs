@@ -333,7 +333,7 @@ internal class ExampleEtlProcess : EtlProcess
         this.logger.LogInformation("No post processing required");
     }
 
-    protected override void OnRowProcessed(IOperation op, Row row)
+    protected override void RowProcessed(IOperation op, Row row)
     {
         this.logger.LogTrace(
             "Row processed [{Operation}]: {Row}", 
@@ -341,7 +341,7 @@ internal class ExampleEtlProcess : EtlProcess
             row);
     }
 
-    protected override void OnFinishedProcessing(IOperation op)
+    protected override void FinishedProcessing(IOperation op)
     {
         this.logger.LogTrace(
             "Finished processing operation {Operation}", 
