@@ -20,6 +20,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
     {
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public Row(IDictionary<string, object?> items, StringComparer comparer)
         : base(items, comparer)
     {
@@ -30,6 +31,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
         this.items = new Dictionary<string, object?>(source, this.Comparer);
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public IEnumerable<string> Columns
     {
         get
@@ -129,6 +131,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return row;
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public object ToObject(Type type)
     {
         var instance = Activator.CreateInstance(type)!;
@@ -152,17 +155,10 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return instance;
     }
 
-    public T ToObject<T>()
-    {
-        return (T)this.ToObject(typeof(T));
-    }
+    public T ToObject<T>() => (T)this.ToObject(typeof(T));
 
     public bool TryGetInt(string key, out int value)
     {
-        if (this.items.TryGetValue(key, out var obj))
-        {
-        }
-
         throw new NotImplementedException();
     }
 
@@ -190,6 +186,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
             BindingFlags.Public |
             BindingFlags.Instance |
             BindingFlags.NonPublic;
+        
         properties = [];
         foreach (var property in type.GetProperties(bindingFlags))
         {
@@ -217,6 +214,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
             BindingFlags.Public |
             BindingFlags.Instance |
             BindingFlags.NonPublic;
+        
         fields = [];
         foreach (var field in type.GetFields(bindingFlags))
         {
@@ -246,10 +244,12 @@ public class Row : DynamicDictionary, IEquatable<Row>
             Expression.Parameter(typeof(object), "first");
         var secondParam =
             Expression.Parameter(typeof(object), "second");
+        
         var expression =
             Expression.Equal(
                 Expression.Convert(firstParam, firstType),
                 Expression.Convert(secondParam, secondType));
+        
         return Expression
             .Lambda<Func<object, object, bool>>(
                 expression,
