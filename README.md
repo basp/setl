@@ -187,7 +187,7 @@ And even though it is counter-intuitive the sink **should** return the rows that
 AFter all that we are finally back to where we started. At this point we have two operations, `ExtractFakeData` and `WriteFakeData` which will be our *extract* and *load* operations respectively. We'll get to the transform step later.
 
 All the way back in the beginning we setup this class but we still need to implement the `Initialize` method. Now that we have a few operations we can finally do this.
-```
+```csharp
 internal class ProcessNumbers : EtlProcess
 {
     private readonly ILogger logger;
@@ -202,8 +202,8 @@ internal class ProcessNumbers : EtlProcess
 
     protected override void Initialize()
     {
-        this.Register(new ExtractFakeData(this.logger))
-        this.Register(new WriteFakeData(this.logger))
+        this.Register(new ExtractFakeData(this.logger));
+        this.Register(new WriteFakeData(this.logger));
     }
 }
 ```
