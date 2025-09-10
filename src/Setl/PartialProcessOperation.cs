@@ -5,9 +5,14 @@ namespace Setl;
 public class PartialProcessOperation
     : EtlProcessBase<PartialProcessOperation>, IOperation
 {
-    protected PartialProcessOperation(ILogger logger) : base(logger)
+    private IPipelineExecutor? pipelineExecutor;
+
+    public PartialProcessOperation(ILogger logger) 
+        : base(logger)
     {
     }
+    
+    public OperationStatistics Statistics { get; } = new();
 
     public event Action<IOperation, Row>? OnRowProcessed
     {
@@ -44,24 +49,34 @@ public class PartialProcessOperation
         }
     }
 
-    public void PrepareForExecution(IPipelineExecutor pipelineExecutor)
+    public void PrepareForExecution(IPipelineExecutor executor)
     {
-        throw new NotImplementedException();
+        this.pipelineExecutor = executor;
+        foreach (var op in this.operations)
+        {
+            op.PrepareForExecution(pipelineExecutor);
+        }
+        
+        this.Statistics.MarkStarted();
     }
 
     public IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
-        throw new NotImplementedException();
+        this.MergeLastOperations();
+        return this.pipelineExecutor!.PipelineToEnumerable(
+            this.operations,
+            rows,
+            enumerable => enumerable);
     }
 
     public void RaiseRowProcessed(Row row)
     {
-        throw new NotImplementedException();
+        this.Statistics.MarkRowProcessed();
     }
 
     public void RaiseFinishedProcessing()
     {
-        throw new NotImplementedException();
+        this.Statistics.MarkFinished();
     }
 
     public void Dispose()

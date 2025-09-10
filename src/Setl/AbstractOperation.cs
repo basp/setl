@@ -4,6 +4,10 @@ namespace Setl;
 
 public abstract class AbstractOperation : LoggerAdapter, IOperation
 {
+    private event Action<IOperation, Row>? onRowProcessed;
+    
+    private event Action<IOperation>? onFinishedProcessing;
+    
     protected AbstractOperation(ILogger logger) : base(logger)
     {
     }
@@ -16,10 +20,18 @@ public abstract class AbstractOperation : LoggerAdapter, IOperation
 
     public OperationStatistics Statistics { get; } = new();
 
-    public event Action<IOperation, Row>? OnRowProcessed;
-    
-    public event Action<IOperation>? OnFinishedProcessing;
-    
+    public virtual event Action<IOperation, Row>? OnRowProcessed
+    {
+        add => this.onRowProcessed += value;
+        remove => this.onRowProcessed -= value;
+    }
+
+    public virtual event Action<IOperation>? OnFinishedProcessing
+    {
+        add => this.onFinishedProcessing += value;
+        remove => this.onFinishedProcessing -= value;
+    }
+
     public virtual void PrepareForExecution(IPipelineExecutor pipelineExecutor)
     {
         this.PipelineExecutor = pipelineExecutor;
@@ -31,16 +43,16 @@ public abstract class AbstractOperation : LoggerAdapter, IOperation
     void IOperation.RaiseRowProcessed(Row row)
     {
         this.Statistics.MarkRowProcessed();
-        this.OnRowProcessed?.Invoke(this, row);  
+        this.onRowProcessed?.Invoke(this, row);  
     }
     
     void IOperation.RaiseFinishedProcessing()
     {
         this.Statistics.MarkFinished();
-        this.OnFinishedProcessing?.Invoke(this);   
+        this.onFinishedProcessing?.Invoke(this);   
     } 
 
-    public IEnumerable<Exception> GetAllErrors() => this.Errors;
+    public virtual IEnumerable<Exception> GetAllErrors() => this.Errors;
     
     public virtual void Dispose()
     {
