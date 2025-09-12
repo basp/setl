@@ -1,0 +1,138 @@
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
+
+namespace Setl;
+
+public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
+{
+    protected readonly IDictionary<string, object?> items;
+    
+    public DynamicDictionary()
+        : this(new Dictionary<string, object?>())
+    {
+    }
+
+    public DynamicDictionary(StringComparer comparer)
+        : this(new Dictionary<string, object?>(), comparer)
+    {
+    }
+    
+    // ReSharper disable once MemberCanBePrivate.Global
+    public DynamicDictionary(IDictionary<string, object?> items)
+        : this(items, StringComparer.InvariantCulture)
+    {
+    }
+    
+    // ReSharper disable once MemberCanBePrivate.Global
+    public DynamicDictionary(
+        IDictionary<string, object?> items,
+        StringComparer comparer)
+    {
+        this.items = new Dictionary<string, object?>(items, comparer);
+    }
+    
+    public object? this[string key]
+    {
+        get
+        {
+            if (this.items.TryGetValue(key, out var value))
+            {
+                return value;
+            }
+            
+            // ReSharper disable once ConvertIfStatementToReturnStatement
+            if (this.ThrowIfMissing)
+            {
+                ThrowKeyNotFoundException(key);
+            }
+            
+            return null;
+        }
+        set => this.items[key] = 
+            value == DBNull.Value ? null : value;
+    }
+
+    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
+    public bool ThrowIfMissing { get; set; }
+    
+    public int Count => this.items.Count;
+
+    public bool IsReadOnly => this.items.IsReadOnly;
+
+    public ICollection<string> Keys => this.items.Keys;
+
+    public ICollection<object?> Values => this.items.Values;
+    
+    public override bool TryGetMember(
+        GetMemberBinder binder, 
+        out object? result)
+    {
+        if (this.TryGetValue(binder.Name, out result))
+        {
+            return true;
+        }
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (this.ThrowIfMissing)
+        {
+            ThrowKeyNotFoundException(binder.Name);
+        }
+        
+        return true;
+    }
+    
+    public override bool TrySetMember(
+        SetMemberBinder binder, 
+        object? value)
+    {
+        this.items[binder.Name] = value;
+        return true;
+    }
+    
+    public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() =>
+        this.items.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() =>
+        new Dictionary<string, object?>(this.items).GetEnumerator();
+
+    public void Add(KeyValuePair<string, object?> item)
+    {
+        this.items.Add(item);
+    }
+
+    public void Clear()
+    {
+        this.items.Clear();
+    }
+
+    public bool Contains(KeyValuePair<string, object?> item) =>
+        this.items.Contains(item);
+
+    public void CopyTo(KeyValuePair<string, object?>[] array, int arrayIndex)
+    {
+        this.items.CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(KeyValuePair<string, object?> item) =>
+        this.items.Remove(item);
+
+    public void Add(string key, object? value)
+    {
+        this.items.Add(key, value);
+    }
+
+    public bool ContainsKey(string key) =>
+        this.items.ContainsKey(key);
+
+    public bool Remove(string key) =>
+        this.items.Remove(key);
+
+    public bool TryGetValue(
+        string key, 
+        [MaybeNullWhen(false)] out object value) =>
+            this.items.TryGetValue(key, out value);
+    
+    private static void ThrowKeyNotFoundException(string key) =>
+        throw new KeyNotFoundException($"Key '{key}' not found.");
+}
