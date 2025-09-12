@@ -1,7 +1,8 @@
 ﻿using Humanizer;
 using Microsoft.Extensions.Logging;
+using Setl.Operations;
 
-namespace Setl;
+namespace Setl.Pipelines;
 
 public abstract class AbstractPipelineExecutor 
     : LoggerAdapter, IPipelineExecutor

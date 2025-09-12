@@ -1,4 +1,4 @@
-﻿namespace Setl;
+﻿namespace Setl.Pipelines;
 
 public class PipelineExecutionException : Exception
 {

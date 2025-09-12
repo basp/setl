@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Setl;
+using Setl.Operations;
+using Setl.Pipelines;
 
 internal class Example3
 {

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using Setl.Enumerables;
+using Setl.Operations;
 
-namespace Setl;
+namespace Setl.Pipelines;
 
 public class SingleThreadedPipelineExecutor : AbstractPipelineExecutor
 {

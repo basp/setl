@@ -1,6 +1,4 @@
-﻿namespace Setl;
-
-using Microsoft.Extensions.Logging;
+﻿namespace Setl.Operations;
 
 public class OperationStatistics
 {

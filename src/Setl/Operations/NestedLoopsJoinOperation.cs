@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Setl.Enumerables;
 
-namespace Setl;
+namespace Setl.Operations;
 
 public abstract class NestedLoopsJoinOperation : AbstractJoinOperation
 {
@@ -56,7 +57,7 @@ public abstract class NestedLoopsJoinOperation : AbstractJoinOperation
             {
                 var emptyRow = new Row
                 {
-                    [IsEmptyRowMarker] =
+                    [NestedLoopsJoinOperation.IsEmptyRowMarker] =
                         NestedLoopsJoinOperation.IsEmptyRowMarker
                 };
                 this.currentLeftRow = emptyRow;
@@ -81,7 +82,7 @@ public abstract class NestedLoopsJoinOperation : AbstractJoinOperation
             this.currentRightRow = rightRow;
             var emptyRow = new Row
             {
-                [IsEmptyRowMarker] = NestedLoopsJoinOperation.IsEmptyRowMarker
+                [NestedLoopsJoinOperation.IsEmptyRowMarker] = NestedLoopsJoinOperation.IsEmptyRowMarker
             };
             this.currentLeftRow = emptyRow;
             if (this.MatchJoinCondition(emptyRow, rightRow))

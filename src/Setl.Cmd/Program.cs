@@ -1,6 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Setl;
+using Setl.Operations;
+using Setl.Pipelines;
 
 using var loggerFactory =
     LoggerFactory.Create(builder =>
@@ -25,7 +26,7 @@ internal static class Example5
         // `NamedOperation` at definition time. I don't really like this
         // style since it's a bit overly verbose. It's a bit cleaner to
         // apply the wrappers at registration time (this also prevents the
-        // double `logger' injection.
+        // double `logger' injection).
         var extract = new NamedOperation(
             "setl-extract", 
             new SimpleExtract(

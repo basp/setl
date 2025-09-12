@@ -4,6 +4,11 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>Setl</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>basp</Authors>
+    <Company>TMG</Company>
+    <Product>Setl</Product>
   </PropertyGroup>
 
   <ItemGroup>

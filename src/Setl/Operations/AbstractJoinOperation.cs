@@ -1,7 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
-namespace Setl;
+namespace Setl.Operations;
 
 public abstract class AbstractJoinOperation : AbstractOperation
 {

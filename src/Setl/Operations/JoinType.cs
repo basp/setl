@@ -1,4 +1,4 @@
-﻿namespace Setl;
+﻿namespace Setl.Operations;
 
 [Flags]
 public enum JoinType
@@ -6,5 +6,5 @@ public enum JoinType
     Inner = 0,
     Left = 1,
     Right = 2,
-    Full = Left | Right,
+    Full = JoinType.Left | JoinType.Right,
 }

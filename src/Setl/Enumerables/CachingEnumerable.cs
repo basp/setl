@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Setl;
+namespace Setl.Enumerables;
 
 public class CachingEnumerable<T> 
     : IEnumerable<T>, IEnumerator<T>

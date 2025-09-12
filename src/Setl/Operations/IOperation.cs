@@ -1,4 +1,4 @@
-﻿namespace Setl;
+﻿namespace Setl.Operations;
 
 public interface IOperation : IDisposable
 {

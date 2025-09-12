@@ -1,4 +1,6 @@
-﻿namespace Setl;
+﻿using Setl.Operations;
+
+namespace Setl.Enumerables;
 
 public class EventRaisingEnumerator : SingleRowEventRaisingEnumerator
 {

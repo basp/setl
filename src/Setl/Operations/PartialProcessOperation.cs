@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Setl;
+namespace Setl.Operations;
 
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class PartialProcessOperation
@@ -56,7 +56,7 @@ public class PartialProcessOperation
         this.pipelineExecutor = executor;
         foreach (var op in this.operations)
         {
-            op.PrepareForExecution(pipelineExecutor);
+            op.PrepareForExecution(this.pipelineExecutor);
         }
         
         this.Statistics.MarkStarted();

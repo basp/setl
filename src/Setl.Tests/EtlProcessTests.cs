@@ -1,4 +1,5 @@
 ﻿using Moq;
+using Setl.Operations;
 
 namespace Setl.Tests;
 

@@ -21,34 +21,22 @@ public class LoggerAdapter
 
     protected void LogTrace(string message, params object[] args)
     {
-        if (this.logger.IsEnabled(LogLevel.Trace))
-        {
-            this.logger.LogTrace(message, args);
-        }
+        this.logger.LogTrace(message, args);
     }
     
     protected void LogDebug(string message, params object[] args)
     {
-        if (this.logger.IsEnabled(LogLevel.Debug))
-        {
-            this.logger.LogDebug(message, args);
-        }
+        this.logger.LogDebug(message, args);
     }
 
     protected void LogInformation(string message, params object[] args)
     {
-        if (this.logger.IsEnabled(LogLevel.Information))
-        {
-            this.logger.LogInformation(message, args);
-        }
+        this.logger.LogInformation(message, args);
     }
 
     protected void LogWarning(string message, params object[] args)
     {
-        if (this.logger.IsEnabled(LogLevel.Warning))
-        {
-            this.logger.LogWarning(message, args);
-        }
+        this.logger.LogWarning(message, args);
     }
     
     protected void LogError(
@@ -57,9 +45,6 @@ public class LoggerAdapter
         params object[] args)
     {
         this.errors.Add(ex);
-        if (this.logger.IsEnabled(LogLevel.Error))
-        {
-            this.logger.LogError(ex, message, args);
-        }
+        this.logger.LogError(ex, message, args);
     }
 }

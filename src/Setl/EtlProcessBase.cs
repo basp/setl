@@ -1,4 +1,6 @@
-﻿namespace Setl;
+﻿using Setl.Operations;
+
+namespace Setl;
 
 using Microsoft.Extensions.Logging;
 
