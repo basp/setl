@@ -6,27 +6,23 @@ namespace Setl;
 
 public abstract class EtlProcess : EtlProcessBase<EtlProcess>, IDisposable
 {
+    private readonly ILogger logger;
     private readonly IPipelineExecutor pipelineExecutor;
+    private bool disposed;
     
     protected EtlProcess(
         ILogger logger,
         IPipelineExecutor pipelineExecutor) 
         : base(logger) 
     {
+        this.logger = logger;
         this.pipelineExecutor = pipelineExecutor;
-    }
-
-    protected static PartialProcessOperation CreatePartial()
-    {
-        throw new NotImplementedException();
     }
 
     public void Dispose()
     {
-        foreach (var op in this.operations)
-        {
-            op.Dispose();
-        }
+        this.Dispose(true);
+        GC.SuppressFinalize(this);   
     }
 
     public void Execute()
@@ -78,6 +74,24 @@ public abstract class EtlProcess : EtlProcessBase<EtlProcess>, IDisposable
     
     protected virtual void PostProcessing()
     {
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (this.disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            foreach (var op in this.operations)
+            {
+                op.Dispose();
+            }
+        }
+
+        this.disposed = true;
     }
 
     private void RegisterToOperationEvents()
