@@ -9,7 +9,8 @@ public class ThreadSafeEnumerator<T>
 
     private bool active = true;
     private T? current;
-
+    private bool disposed;
+    
     public T Current => this.current!;
 
     public IEnumerator<T> GetEnumerator()
@@ -26,7 +27,8 @@ public class ThreadSafeEnumerator<T>
 
     public void Dispose()
     {
-        this.cached.Clear();
+        GC.SuppressFinalize(this);
+        this.Dispose(true);
     }
 
     public bool MoveNext()
@@ -69,5 +71,20 @@ public class ThreadSafeEnumerator<T>
             this.active = false;
             Monitor.Pulse(this.cached);
         }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (this.disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            this.cached.Clear();
+        }
+        
+        this.disposed = true;
     }
 }

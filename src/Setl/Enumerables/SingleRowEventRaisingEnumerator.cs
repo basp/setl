@@ -9,7 +9,9 @@ public class SingleRowEventRaisingEnumerator
     protected readonly IOperation operation;
 
     private readonly IEnumerable<Row>? inner;
+    
     private IEnumerator<Row>? innerEnumerator;
+    private bool disposed;
 
     protected SingleRowEventRaisingEnumerator(
         IOperation operation,
@@ -21,9 +23,12 @@ public class SingleRowEventRaisingEnumerator
 
     public Row Current => this.innerEnumerator!.Current;
 
+    object? IEnumerator.Current => this.innerEnumerator!.Current;
+
     public void Dispose()
     {
-        this.innerEnumerator?.Dispose();
+        GC.SuppressFinalize(this);
+        this.Dispose(true);
     }
 
     public virtual bool MoveNext()
@@ -48,7 +53,11 @@ public class SingleRowEventRaisingEnumerator
         this.innerEnumerator!.Reset();
     }
 
-    object? IEnumerator.Current => this.innerEnumerator!.Current;
+
+    public IEnumerator GetEnumerator()
+    {
+        return ((IEnumerable<Row>)this).GetEnumerator();
+    }
 
     IEnumerator<Row> IEnumerable<Row>.GetEnumerator()
     {
@@ -57,9 +66,19 @@ public class SingleRowEventRaisingEnumerator
         return this;
     }
 
-    public IEnumerator GetEnumerator()
+    protected virtual void Dispose(bool disposing)
     {
-        return ((IEnumerable<Row>)this).GetEnumerator();
+        if (this.disposed)
+        {
+            return;
+        }
+        
+        if (disposing)
+        {
+            this.innerEnumerator?.Dispose();
+        }
+        
+        this.disposed = true;
     }
 
     private void ThrowIfMissingInner()
