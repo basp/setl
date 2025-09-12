@@ -8,6 +8,11 @@ public abstract class AbstractAggregationOperation : AbstractOperation
     {
     }
 
+    protected AbstractAggregationOperation(ILoggerFactory loggerFactory)
+        : this(loggerFactory.CreateLogger<AbstractAggregationOperation>())
+    {
+    }
+
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
         var aggregations = new Dictionary<CompositeKey, Row>();
