@@ -1,32 +1,35 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿namespace Setl;
 
-namespace Setl;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Reflection;
 
 public class Row : DynamicDictionary, IEquatable<Row>
 {
     private static readonly Dictionary<Type, List<PropertyInfo>> propertyCache = new();
 
     private static readonly Dictionary<Type, List<FieldInfo>> fieldCache = new();
-    
-    public Row()
-    {
-    }
 
-    public Row(IDictionary<string, object?> items)
-        : base(items)
+
+    public Row()
+        : base(new Dictionary<string, object?>())
     {
     }
 
     public Row(StringComparer comparer)
-        : base(comparer)
+        : base(new Dictionary<string, object?>(), comparer)
     {
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public Row(IDictionary<string, object?> items, StringComparer comparer)
         : base(items, comparer)
     {
+    }
+
+    public void Copy(IDictionary<string, object?> source)
+    {
+        this.items = new Dictionary<string, object?>(source, this.Comparer);
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
@@ -34,16 +37,83 @@ public class Row : DynamicDictionary, IEquatable<Row>
     {
         get
         {
-            var keys = new List<string>(this.items.Keys);
-            foreach (var key in keys)
+            foreach (var column in new List<string>(this.items.Keys))
             {
-                yield return key;
+                yield return column;
             }
         }
     }
-    
-    public static Row FromObject(object obj)
+
+    public Row Clone()
     {
+        var row = new Row(this, this.Comparer);
+        return row;
+    }
+
+    public bool Equals(Row? other)
+    {
+        if (other == null)
+        {
+            return false;
+        }
+
+        if (!this.Comparer.Equals(other.Comparer))
+        {
+            return false;
+        }
+
+        if (!this.Columns.SequenceEqual(other.Columns, this.Comparer))
+        {
+            return false;
+        }
+
+        foreach (var key in this.items.Keys)
+        {
+            var item = this.items[key];
+            var otherItem = other.items[key];
+
+            if (item == null || otherItem == null)
+            {
+                return item == null && otherItem == null;
+            }
+
+            var compare = CreateComparer(
+                item.GetType(),
+                otherItem.GetType());
+
+            if (!compare(item, otherItem))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public CompositeKey CreateKey()
+    {
+        return this.CreateKey(this.Columns.ToArray());
+    }
+
+    public CompositeKey CreateKey(params string[] columns)
+    {
+        var array = new object?[columns.Length];
+        for (var i = 0; i < columns.Length; i++)
+        {
+            var column = columns[i];
+            array[i] = this.items[column];
+        }
+
+        return new CompositeKey(array);
+    }
+
+    public static Row FromObject(object? obj)
+    {
+        if (obj == null)
+        {
+            ArgumentNullException.ThrowIfNull(obj, nameof(obj));
+        }
+
         var row = new Row();
 
         var properties = GetProperties(obj);
@@ -61,82 +131,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
 
         return row;
     }
-    
-    public Row Clone() => new(this.items);
 
-    // ReSharper disable once MemberCanBePrivate.Global
-    public Key CreateKey() => this.CreateKey(this.Columns.ToArray());
-
-    // ReSharper disable once MemberCanBePrivate.Global
-    public Key CreateKey(params string[] columns)
-    {
-        var arr = new object?[columns.Length];
-        for (var i = 0; i < columns.Length; i++)
-        {
-            var column = columns[i];
-            arr[i] = this.items[column];
-        }
-
-        return new Key(arr);
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(this, obj))
-        {
-            return true;
-        }
-        
-        if (obj is not Row other)
-        {
-            return false;
-        }
-        
-        return this.Equals(other);
-    }
-
-    public override int GetHashCode() => this.CreateKey().GetHashCode();
-    
-    public bool Equals(Row? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        if (!this.comparer.Equals(other.comparer))
-        {
-            return false;
-        }
-
-        if (!this.Columns.SequenceEqual(other.Columns))
-        {
-            return false;
-        }
-
-        foreach (var key in this.items.Keys)
-        {
-            var thisItem = this.items[key];
-            var otherItem = other.items[key];
-
-            if (thisItem is null || otherItem is null)
-            {
-                return thisItem == null && otherItem == null;
-            }
-            
-            var compare = CreateComparer(
-                thisItem.GetType(), 
-                otherItem.GetType());
-
-            if (!compare(thisItem, otherItem))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-    
     // ReSharper disable once MemberCanBePrivate.Global
     public object ToObject(Type type)
     {
@@ -162,7 +157,24 @@ public class Row : DynamicDictionary, IEquatable<Row>
     }
 
     public T ToObject<T>() => (T)this.ToObject(typeof(T));
-    
+
+    public bool TryGetInt(string key, out int value)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool TryGetString(string key, out string? value)
+    {
+        value = null;
+        
+        if (this.items.TryGetValue(key, out var obj))
+        {
+            value = obj as string;
+        }
+        
+        return value != null;
+    }
+
     private static List<PropertyInfo> GetProperties(object obj)
     {
         var type = obj.GetType();
@@ -171,9 +183,10 @@ public class Row : DynamicDictionary, IEquatable<Row>
             return properties;
         }
 
-        const BindingFlags bindingFlags = BindingFlags.Public |
-                                          BindingFlags.Instance |
-                                          BindingFlags.NonPublic;
+        var bindingFlags =
+            BindingFlags.Public |
+            BindingFlags.Instance |
+            BindingFlags.NonPublic;
         
         properties = [];
         foreach (var property in type.GetProperties(bindingFlags))
@@ -198,9 +211,10 @@ public class Row : DynamicDictionary, IEquatable<Row>
             return fields;
         }
 
-        const BindingFlags bindingFlags = BindingFlags.Public |
-                                          BindingFlags.Instance |
-                                          BindingFlags.NonPublic;
+        var bindingFlags =
+            BindingFlags.Public |
+            BindingFlags.Instance |
+            BindingFlags.NonPublic;
         
         fields = [];
         foreach (var field in type.GetFields(bindingFlags))
@@ -217,7 +231,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
         fieldCache[type] = fields;
         return fields;
     }
-    
+
     private static Func<object, object, bool> CreateComparer(
         Type firstType,
         Type secondType)

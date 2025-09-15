@@ -7,6 +7,7 @@ namespace Setl;
 public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
 {
     protected readonly IDictionary<string, object?> items;
+    protected readonly StringComparer comparer;
     
     public DynamicDictionary()
         : this(new Dictionary<string, object?>())
@@ -18,18 +19,17 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
     {
     }
     
-    // ReSharper disable once MemberCanBePrivate.Global
     public DynamicDictionary(IDictionary<string, object?> items)
         : this(items, StringComparer.InvariantCulture)
     {
     }
     
-    // ReSharper disable once MemberCanBePrivate.Global
     public DynamicDictionary(
         IDictionary<string, object?> items,
         StringComparer comparer)
     {
         this.items = new Dictionary<string, object?>(items, comparer);
+        this.comparer = comparer;
     }
     
     public object? this[string key]
@@ -41,7 +41,6 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
                 return value;
             }
             
-            // ReSharper disable once ConvertIfStatementToReturnStatement
             if (this.ThrowIfMissing)
             {
                 ThrowKeyNotFoundException(key);
@@ -73,7 +72,6 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
             return true;
         }
         
-        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (this.ThrowIfMissing)
         {
             ThrowKeyNotFoundException(binder.Name);
