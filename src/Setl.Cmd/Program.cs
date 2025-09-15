@@ -18,6 +18,7 @@ var builder = new TextSerializerBuilder()
 
 var serializer = builder.Build();
 var text = @"123XYZ   123";
+
 var record1 = serializer.Deserialize<Record>(text);
 Console.WriteLine(
     "[Foo {0}] [Bar {1}] [Quux {2}]", 

@@ -14,8 +14,8 @@ public class TextSerializer
         this.regex = regex;
         this.fields = fields;
     }
-    
-    public T Deserialize<T>(string text) where T : new()
+
+    public Row Deserialize(string text)
     {
         var match = this.regex.Match(text);
         if (!match.Success)
@@ -32,6 +32,13 @@ public class TextSerializer
             // exception earlier.
             row[field] = groups[field].Value;
         }
+
+        return row;
+    }
+    
+    public T Deserialize<T>(string text) where T : new()
+    {
+        var row = this.Deserialize(text);
 
         // This could easily fail. Not sure if we should care about it from
         // inside the Deserialize method.

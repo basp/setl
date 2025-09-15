@@ -5,10 +5,6 @@ namespace Setl;
 
 public class TextSerializerBuilder
 {
-    public bool IsZeroIndexed { get; set; } = false;
-
-    // private int currentOffset = 0;
-
     private readonly StringBuilder patternBuilder = new();
     private readonly List<string> fields = [];
 
