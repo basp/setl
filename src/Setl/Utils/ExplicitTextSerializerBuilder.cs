@@ -1,4 +1,4 @@
-﻿namespace Setl;
+﻿namespace Setl.Utils;
 
 // NOTE: we can probably re-use an inner SequentialTextSerializerBuilder.
 public class ExplicitTextSerializerBuilder : ITextSerializerBuilder

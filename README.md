@@ -2,13 +2,20 @@
 Simple ETL.
 
 A stripped down, modified, modernized version of 
-[RhinoETL](https://github.com/ayende/rhino-etl).
+[RhinoETL](https://github.com/ayende/rhino-etl) with utilities focused on batch processing of
+*legacy* data.
 
-## TextSerializer
+## Overview
+
+
+
+
+
+### TextSerializer
 A `TextSerializer` intance can be used to either *deserialize* or *serialize* 
 a line in a fixed-width text file.
 
-### Features
+#### Features
 * A single `TextSerializer` instance can be reused to deserialize to multiple outputs.
 * The serializer can be used to deserialize a single line and return the 
   deserialized object.

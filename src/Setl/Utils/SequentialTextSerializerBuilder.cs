@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Setl;
+namespace Setl.Utils;
 
 public class SequentialTextSerializerBuilder : ITextSerializerBuilder
 {

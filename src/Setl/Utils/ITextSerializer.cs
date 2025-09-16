@@ -1,4 +1,4 @@
-﻿namespace Setl;
+﻿namespace Setl.Utils;
 
 public interface ITextSerializer
 {
