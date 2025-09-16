@@ -8,7 +8,7 @@ public class SequentialTextSerializerBuilder : ITextSerializerBuilder
     private readonly StringBuilder patternBuilder = new();
     private readonly List<string> fields = [];
 
-    public SequentialTextSerializerBuilder TextField(string name, int length)
+    public SequentialTextSerializerBuilder Field(string name, int length)
     {
         this.patternBuilder.Append($"(?<{name}>.{{{length}}})");
         this.fields.Add(name);
