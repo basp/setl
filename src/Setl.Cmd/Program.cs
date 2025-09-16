@@ -109,16 +109,24 @@ internal static class SVBWWB65PlusExample
 
     private class Parser
     {
+        // These are the scanner expressions, they tell us what kind of record
+        // we're dealing with.
         private static readonly string IsBerichtregelPattern = @"^BER";
         private static readonly string IsGemeenteregelPattern = @"^GEM";
         private static readonly string IsDetailregelPattern = @"^DTR";
         private static readonly string IsTellingenregelPattern = @"^TPG";
         
+        // These are the instantiated expressions, they are cached here mostly
+        // for performance reasons.
         private static readonly Regex IsBerichtregel = new(IsBerichtregelPattern);
         private static readonly Regex IsGemeenteregel = new(IsGemeenteregelPattern);
         private static readonly Regex IsDetailregel = new(IsDetailregelPattern);
         private static readonly Regex IsTellingenregel = new(IsTellingenregelPattern);
         
+        // This is the serializer config, we configure a serializer for each
+        // scanner so it can return a specific record type. Note that records
+        // are returned as Row instances. It's up to the caller to cast them
+        // to the appropriate type (usually via the ToObject<T> method).
         private static readonly IDictionary<Regex, Func<string, Row>> serializers =
             new Dictionary<Regex, Func<string, Row>>()
             {
@@ -128,12 +136,14 @@ internal static class SVBWWB65PlusExample
                     SVBWWB65PlusExample.gemeenteSerializer.Deserialize(line),
                 [Parser.IsDetailregel] = line => 
                     SVBWWB65PlusExample.detailSerializer.Deserialize(line),
-                [Parser.IsTellingenregel] = 
-                    line => SVBWWB65PlusExample.tellingenSerializer.Deserialize(line),
+                [Parser.IsTellingenregel] = line => 
+                    SVBWWB65PlusExample.tellingenSerializer.Deserialize(line),
             };
         
         public static Row Parse(string line)
         {
+            // Loop through all known serializers and see if we can find a
+            // match with the regex key.
             foreach (var (pattern, serializer) in serializers)
             {
                 if (pattern.IsMatch(line))
@@ -142,7 +152,11 @@ internal static class SVBWWB65PlusExample
                 }
             }
             
-            // Include line and other metadata (line number, etc.)
+            // Unable to parse the line, at this point we should probably
+            // throw an exception.
+            // TODO:
+            // Create exception type, include line and other metadata (line
+            // number, etc.)
             throw new Exception("Unknown record type");
         }
     }
