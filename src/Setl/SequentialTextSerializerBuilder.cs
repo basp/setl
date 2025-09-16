@@ -3,25 +3,25 @@ using System.Text.RegularExpressions;
 
 namespace Setl;
 
-public class TextSerializerBuilder
+public class SequentialTextSerializerBuilder : ITextSerializerBuilder
 {
     private readonly StringBuilder patternBuilder = new();
     private readonly List<string> fields = [];
 
-    public TextSerializerBuilder TextField(string name, int length)
+    public SequentialTextSerializerBuilder TextField(string name, int length)
     {
         this.patternBuilder.Append($"(?<{name}>.{{{length}}})");
         this.fields.Add(name);
         return this;
     }
 
-    public TextSerializerBuilder Skip(int length)
+    public SequentialTextSerializerBuilder Skip(int length)
     {
         this.patternBuilder.Append($"(.{{{length}}})");
         return this;
     }
     
-    public TextSerializer Build()
+    public ITextSerializer Build()
     {
         var pattern = this.patternBuilder.ToString();
         var regex = new Regex(pattern);

@@ -2,7 +2,7 @@
 
 namespace Setl;
 
-public class TextSerializer
+public class TextSerializer : ITextSerializer
 {
     private readonly Regex regex;
     private readonly string[] fields;
@@ -25,15 +25,12 @@ public class TextSerializer
         }
 
         var groups = match.Groups;
-        var row = new Row();
-        foreach (var field in this.fields)
-        {
-            // All fields should be matched, otherwise we would have thrown an
-            // exception earlier.
-            row[field] = groups[field].Value;
-        }
-
-        return row;
+        var items = this.fields
+            .ToDictionary(
+                x => x, 
+                object? (x) => groups[x].Value);
+        
+        return new Row(items);
     }
     
     public T Deserialize<T>(string text) where T : new()

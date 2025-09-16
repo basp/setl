@@ -10,14 +10,14 @@ using var loggerFactory =
             })
             .SetMinimumLevel(LogLevel.Trace));
 
-var builder = new TextSerializerBuilder()
+var builder = new SequentialTextSerializerBuilder()
     .TextField("foo", 3)
     .TextField("bar", 3)
     .Skip(3)
     .TextField("quux", 3);
 
+const string text = @"123XYZ   123";
 var serializer = builder.Build();
-var text = @"123XYZ   123";
 
 var record1 = serializer.Deserialize<Record>(text);
 Console.WriteLine(
