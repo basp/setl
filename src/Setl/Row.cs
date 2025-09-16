@@ -4,26 +4,46 @@ using System.Runtime.CompilerServices;
 
 namespace Setl;
 
+/// <summary>
+/// Represents a row of data.
+/// </summary>
 public class Row : DynamicDictionary, IEquatable<Row>
 {
+    // The caches help to avoid reflection in the GetProperties and GetFields
+    // methods.
     private static readonly Dictionary<Type, List<PropertyInfo>> propertyCache = new();
-
     private static readonly Dictionary<Type, List<FieldInfo>> fieldCache = new();
     
+    /// <summary>
+    /// Create a new empty row.
+    /// </summary>
     public Row()
     {
     }
 
+    /// <summary>
+    /// Create a new row from an existing dictionary.
+    /// </summary>
+    /// <param name="items">Dictionary.</param>
     public Row(IDictionary<string, object?> items)
         : base(items)
     {
     }
 
+    /// <summary>
+    /// Create a new row with a specific comparer.
+    /// </summary>
+    /// <param name="comparer">Comparer</param>
     public Row(StringComparer comparer)
         : base(comparer)
     {
     }
 
+    /// <summary>
+    /// Create a new row from an existing dictionary and a specific comparer.
+    /// </summary>
+    /// <param name="items">Dictionary.</param>
+    /// <param name="comparer">Comparer.</param>
     public Row(IDictionary<string, object?> items, StringComparer comparer)
         : base(items, comparer)
     {
@@ -42,6 +62,11 @@ public class Row : DynamicDictionary, IEquatable<Row>
         }
     }
     
+    /// <summary>
+    /// Crates a new row from an object.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns>Row.</returns>
     public static Row FromObject(object obj)
     {
         var row = new Row();
