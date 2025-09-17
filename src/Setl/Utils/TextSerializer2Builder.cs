@@ -14,6 +14,17 @@ public class TextSerializer2Builder
             field.Length = length;
         });
     
+    public TextSerializer2Builder Skip(int length)
+    {
+        var name = this.fields.Count.ToString();
+        return this.Field(f =>
+        {
+            f.Name = name;
+            f.Length = length;
+            f.Skip = true;
+        });
+    }
+    
     public TextSerializer2Builder Field(Action<TextField> configure)
     {
         var field = new TextField();
@@ -27,14 +38,18 @@ public class TextSerializer2Builder
         var patternBuilder = new StringBuilder();
         foreach (var field in this.fields)
         {
-            var pattern = field.Skip
+            var fieldPattern = field.Skip
+                // If we are skipping the field, we don't need to capture it
+                // in a named group. Just use an unnamed group.
                 ? $"(.{{{field.Length}}})"
+                // Otherwise, capture it in a named group.
                 : $"(?<{field.Name}>.{{{field.Length}}})";
             
-            patternBuilder.Append(pattern);
+            patternBuilder.Append(fieldPattern);
         }
         
-        var regex = new Regex(patternBuilder.ToString());
+        var pattern = patternBuilder.ToString();
+        var regex = new Regex(pattern);
         return new TextSerializer2(regex, this.fields);
     }
 }

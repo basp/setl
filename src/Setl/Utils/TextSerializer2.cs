@@ -21,13 +21,22 @@ public class TextSerializer2 : ITextSerializer
         if (!match.Success)
         {
             const string msg = $"Text does not match the expected format."; 
-            throw new ArgumentException(msg);   
+            throw new TextDeserializationException(msg, text);   
         }
-        
+
         var items = this.fields
             .ToDictionary(
                 x => x.Name,
-                x => x.Convert(match.Groups[x.Name].Value));
+                x =>
+                {
+                    var value = match.Groups[x.Name].Value;
+                    if (!x.Converter.TryConvert(value, out var result))
+                    {
+                        throw new FieldConversionException(x.Name, value);
+                    }
+
+                    return result;
+                });
 
         return new Row(items);
     }
