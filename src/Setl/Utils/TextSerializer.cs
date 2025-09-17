@@ -24,11 +24,10 @@ public class TextSerializer : ITextSerializer
             throw new ArgumentException(msg);    
         }
 
-        var groups = match.Groups;
         var items = this.fields
             .ToDictionary(
                 x => x, 
-                object? (x) => groups[x].Value);
+                object? (x) => match.Groups[x].Value);
         
         return new Row(items);
     }
@@ -36,9 +35,6 @@ public class TextSerializer : ITextSerializer
     public T Deserialize<T>(string text) where T : new()
     {
         var row = this.Deserialize(text);
-
-        // This could easily fail. Not sure if we should care about it from
-        // inside the Deserialize method.
         return row.ToObject<T>();
     }
 }

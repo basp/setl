@@ -121,7 +121,7 @@ public class RowTests
         Assert.Equal("foo", obj.Name);
         Assert.Equal(3.14, obj.Value);
     }
-
+    
     // ReSharper disable once ClassNeverInstantiated.Local
     private class Foo
     {

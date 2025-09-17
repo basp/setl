@@ -40,21 +40,14 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
             {
                 return value;
             }
-            
-            if (this.ThrowIfMissing)
-            {
-                ThrowKeyNotFoundException(key);
-            }
-            
+
+            this.MissingKeyBehavior.Handle(key, this);
             return null;
         }
         set => this.items[key] = 
             value == DBNull.Value ? null : value;
     }
 
-    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
-    public bool ThrowIfMissing { get; set; }
-    
     public int Count => this.items.Count;
 
     public bool IsReadOnly => this.items.IsReadOnly;
@@ -62,7 +55,10 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
     public ICollection<string> Keys => this.items.Keys;
 
     public ICollection<object?> Values => this.items.Values;
-    
+
+    public IMissingKeyBehavior MissingKeyBehavior { get; set; } =
+        Setl.MissingKeyBehavior.Throw;
+
     public override bool TryGetMember(
         GetMemberBinder binder, 
         out object? result)
@@ -71,12 +67,8 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
         {
             return true;
         }
-        
-        if (this.ThrowIfMissing)
-        {
-            ThrowKeyNotFoundException(binder.Name);
-        }
-        
+
+        this.MissingKeyBehavior.Handle(binder.Name, this);
         return true;
     }
     

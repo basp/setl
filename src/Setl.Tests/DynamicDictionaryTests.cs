@@ -1,4 +1,6 @@
-﻿namespace Setl.Tests;
+﻿using System.Runtime.InteropServices.ComTypes;
+
+namespace Setl.Tests;
 
 public class DynamicDictionaryTests
 {
@@ -10,6 +12,7 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
+            MissingKeyBehavior = MissingKeyBehavior.Ignore,
         };
 
         Assert.Equal(1, d["a"]);
@@ -27,6 +30,7 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
+            MissingKeyBehavior = MissingKeyBehavior.Ignore,
         };
 
         Assert.Equal(1, d["a"]);
@@ -46,7 +50,6 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
-            ThrowIfMissing = true,
         };
         
         Assert.Equal(1, d["a"]);
@@ -64,7 +67,6 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
-            ThrowIfMissing = true,
         };
         
         Assert.Equal(1, d["a"]);
@@ -84,6 +86,7 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
+            MissingKeyBehavior = MissingKeyBehavior.Ignore,
         };
 
         d.A = 4;
@@ -105,6 +108,7 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
+            MissingKeyBehavior = MissingKeyBehavior.Ignore,
         };
         
         Assert.Equal(1, d.a);
