@@ -7,22 +7,28 @@ public class RowEventRaisingEnumerator
 {
     protected readonly IOperation operation;
 
-    private readonly IEnumerable<Row> innerEnumerable;
+    private readonly IEnumerable<Row>? inner;
     
     private IEnumerator<Row>? innerEnumerator;
     private bool disposed;
-    
-    protected RowEventRaisingEnumerator(
+
+    public RowEventRaisingEnumerator(
         IOperation operation,
-        IEnumerable<Row> innerEnumerable)
+        IEnumerable<Row> inner)
     {
         this.operation = operation;
-        this.innerEnumerable = innerEnumerable;
+        this.inner = inner;
     }
-    
+
     public Row Current => this.innerEnumerator!.Current;
-    
-    object IEnumerator.Current => this.innerEnumerator!.Current;
+
+    object? IEnumerator.Current => this.innerEnumerator!.Current;
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        this.Dispose(true);
+    }
 
     public virtual bool MoveNext()
     {
@@ -32,6 +38,11 @@ public class RowEventRaisingEnumerator
             return result;
         }
         
+        // Apparently we're not doing anything with the previous row?
+        // TODO:
+        // Make sure this works as expected and that we *really* don't need
+        // the previous row.
+        _ = this.innerEnumerator!.Current;
         this.operation.RaiseRowProcessed(this.Current);
         return result;
     }
@@ -40,14 +51,17 @@ public class RowEventRaisingEnumerator
     {
         this.innerEnumerator!.Reset();
     }
-    
-    IEnumerator IEnumerable.GetEnumerator() =>
-        ((IEnumerable<Row>)this).GetEnumerator();
 
-    public IEnumerator<Row> GetEnumerator()
+
+    public IEnumerator GetEnumerator()
     {
-        this.innerEnumerator = 
-            this.innerEnumerable.GetEnumerator();
+        return ((IEnumerable<Row>)this).GetEnumerator();
+    }
+
+    IEnumerator<Row> IEnumerable<Row>.GetEnumerator()
+    {
+        this.ThrowIfMissingInner();
+        this.innerEnumerator = this.inner!.GetEnumerator();
         return this;
     }
 
@@ -65,10 +79,15 @@ public class RowEventRaisingEnumerator
         
         this.disposed = true;
     }
-    
-    public void Dispose()
+
+    private void ThrowIfMissingInner()
     {
-        GC.SuppressFinalize(this);
-        this.Dispose(true);
+        if (this.inner != null)
+        {
+            return;
+        }
+        
+        const string msg = "Null enumerator detected, are you trying to read from the first operation in the process?";
+        throw new InvalidOperationException(msg);
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Setl;
 
@@ -14,7 +13,7 @@ public class NonCachedPipelineExecutor : AbstractPipelineExecutor
         IOperation op, 
         IEnumerable<Row> rows)
     {
-        foreach (var row in new EventRaisingEnumerator(op, rows))
+        foreach (Row row in new EventRaisingEnumerator(op, rows))
         {
             yield return row;
         }
