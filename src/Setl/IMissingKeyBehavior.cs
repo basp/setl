@@ -2,7 +2,5 @@
 
 public interface IMissingKeyBehavior
 {
-    public void Handle(
-        string key, 
-        DynamicDictionary dictionary);
+    public void Handle( string key, DynamicDictionary dictionary);
 }

@@ -33,14 +33,16 @@ public class Key
     public override int GetHashCode()
     {
         var result = 0;
+
+        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var value in this.values)
         {
             if (value == null)
             {
                 continue;
             }
-            
-            result ^= value?.GetHashCode() ?? 0;
+
+            result ^= value.GetHashCode();
         }
 
         return result;

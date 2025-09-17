@@ -162,8 +162,6 @@ public class Row : DynamicDictionary, IEquatable<Row>
 
         return true;
     }
-    
-    // ReSharper disable once MemberCanBePrivate.Global
     public object ToObject(Type type)
     {
         var instance = Activator.CreateInstance(type)!;

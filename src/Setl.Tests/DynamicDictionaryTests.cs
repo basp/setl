@@ -41,6 +41,48 @@ public class DynamicDictionaryTests
         Assert.Equal(3, d["C"]);
         Assert.Null(d["d"]);
     }
+
+    [Fact]
+    public void DynamicFromExisting()
+    {
+        var existing = new Dictionary<string, object?>
+        {
+            ["a"] = 1,
+            ["b"] = 2,
+            ["c"] = 3,
+        };
+        
+        dynamic d = new DynamicDictionary(existing);
+
+        Assert.Equal(1, d.a);
+        Assert.Equal(2, d.b);
+        Assert.Equal(3, d.c);
+        Assert.Throws<KeyNotFoundException>(() => d.A);
+        Assert.Throws<KeyNotFoundException>(() => d.d);
+    }
+
+    [Fact]
+    public void DynamicFromExistingWithComparer()
+    {
+        var existing = new Dictionary<string, object?>
+        {
+            ["a"] = 1,
+            ["b"] = 2,
+            ["c"] = 3,
+        };
+        
+        dynamic d = new DynamicDictionary(
+            existing, 
+            StringComparer.InvariantCultureIgnoreCase);
+
+        Assert.Equal(1, d.A);
+        Assert.Equal(1, d.a);
+        Assert.Equal(2, d.B);
+        Assert.Equal(2, d.b);
+        Assert.Equal(3, d.C);
+        Assert.Equal(3, d.c);
+        Assert.Throws<KeyNotFoundException>(() => d.d);
+    }
     
     [Fact]
     public void ThrowOnMissingCaseSensitiveKey()

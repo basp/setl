@@ -14,9 +14,7 @@ public class MissingKeyBehavior : IMissingKeyBehavior
     
     private readonly Action<string, DynamicDictionary> handler;
 
-    public MissingKeyBehavior(
-        Action<string, 
-            DynamicDictionary> handler)
+    private MissingKeyBehavior(Action<string, DynamicDictionary> handler)
     {
         this.handler = handler;
     }

@@ -76,7 +76,7 @@ public class RowTests
     }
 
     [Fact]
-    public void CloneRowResultsInNewRow()
+    public void CloneRowCreatesNewRow()
     {
         var a = new Row
         {
@@ -104,13 +104,14 @@ public class RowTests
         };
 
         var row = Row.FromObject(obj);
+        
         Assert.Equal(1, row["Id"]);
         Assert.Equal("foo", row["Name"]);
         Assert.Equal(3.14, row["Value"]);
     }
 
     [Fact]
-    public void ConvertRowToObject()
+    public void ConvertRowToObjectWithStaticType()
     {
         var row = new Row
         {
@@ -120,9 +121,29 @@ public class RowTests
         };
         
         var obj = row.ToObject<Foo>();
+        
         Assert.Equal(1, obj.Id);
         Assert.Equal("foo", obj.Name);
         Assert.Equal(3.14, obj.Value);
+    }
+
+    [Fact]
+    public void ConvertRowToObjectWithRuntimeType()
+    {
+        var row = new Row
+        {
+            ["Id"] = 1,
+            ["Name"] = "foo",
+            ["Value"] = 3.14,
+        };
+
+        var obj = row.ToObject(typeof(Foo));
+        var foo = obj as Foo;
+        
+        Assert.NotNull(foo);
+        Assert.Equal(1, foo!.Id);
+        Assert.Equal("foo", foo.Name);
+        Assert.Equal(3.14, foo.Value);
     }
 
     [Fact]
