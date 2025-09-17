@@ -7,11 +7,12 @@ public class RowEventRaisingEnumerator
 {
     protected readonly IOperation operation;
 
-    private readonly IEnumerable<Row>? innerEnumerable;
+    private readonly IEnumerable<Row> innerEnumerable;
+    
     private IEnumerator<Row>? innerEnumerator;
     private bool disposed;
     
-    public RowEventRaisingEnumerator(
+    protected RowEventRaisingEnumerator(
         IOperation operation,
         IEnumerable<Row> innerEnumerable)
     {
@@ -45,8 +46,8 @@ public class RowEventRaisingEnumerator
 
     public IEnumerator<Row> GetEnumerator()
     {
-        this.ThrowIsMissingInnerEnumerable();
-        this.innerEnumerator = this.innerEnumerable!.GetEnumerator();
+        this.innerEnumerator = 
+            this.innerEnumerable.GetEnumerator();
         return this;
     }
 
@@ -69,16 +70,5 @@ public class RowEventRaisingEnumerator
     {
         GC.SuppressFinalize(this);
         this.Dispose(true);
-    }
-
-    private void ThrowIsMissingInnerEnumerable()
-    {
-        if (this.innerEnumerable != null)
-        {
-            return;
-        }
-        
-        const string msg = "Null enumerator detected, are you trying to read from the first operation in the process?";
-        throw new InvalidOperationException(msg);
     }
 }

@@ -21,7 +21,6 @@ public class Key
             return false;
         }
 
-        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (this.values.Length != other.values.Length)
         {
             return false;
