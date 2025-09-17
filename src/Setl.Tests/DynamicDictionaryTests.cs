@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-
-namespace Setl.Tests;
+﻿namespace Setl.Tests;
 
 public class DynamicDictionaryTests
 {

@@ -1,6 +1,4 @@
-﻿// ReSharper disable UnusedAutoPropertyAccessor.Local
-
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Setl.Tests;
 
@@ -141,7 +139,7 @@ public class RowTests
         var foo = obj as Foo;
         
         Assert.NotNull(foo);
-        Assert.Equal(1, foo!.Id);
+        Assert.Equal(1, foo.Id);
         Assert.Equal("foo", foo.Name);
         Assert.Equal(3.14, foo.Value);
     }
@@ -190,12 +188,73 @@ public class RowTests
         
         Assert.Equal(expected, json);
     }
+
+    [Fact]
+    public void CreateRowKeyForAllColumns()
+    {
+        var row1 = new Row
+        {
+            ["Id"] = 1,
+            ["Name"] = "foo",
+        };
+
+        var row2 = new Row
+        {
+            ["Id"] = 1,
+            ["Name"] = "foo",
+        };
+
+        var row3 = new Row
+        {
+            ["Id"] = 1,
+            ["Name"] = "bar",
+        };
+        
+        var key1 = row1.CreateKey();
+        var key2 = row2.CreateKey();
+        var key3 = row3.CreateKey();
+        
+        Assert.Equal(key1, key2);
+        Assert.NotEqual(key1, key3);
+    }
     
-    // ReSharper disable once ClassNeverInstantiated.Local
+    [Fact]
+    public void CreateRowKeyForSpecificColumns()
+    {
+        var row1 = new Row
+        {
+            ["Id"] = 1,
+            ["Name"] = "foo",
+            ["Value"] = 3.14,
+        };
+
+        var row2 = new Row
+        {
+            ["Id"] = 1,
+            ["Name"] = "foo",
+            ["Value"] = 6.28,
+        };
+
+        var row3 = new Row
+        {
+            ["Id"] = 1,
+            ["Name"] = "bar",
+            ["Value"] = 3.14,
+        };
+        
+        var keyColumns = new[] { "Id", "Name" };
+        var key1 = row1.CreateKey(keyColumns);
+        var key2 = row2.CreateKey(keyColumns);
+        var key3 = row3.CreateKey(keyColumns);
+        
+        Assert.Equal(key1, key2);
+        Assert.NotEqual(key1, key3);
+    }
+    
     private class Foo
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public double Value { get; set; }
+        public int Id { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public double Value { get; init; }
     }
 }

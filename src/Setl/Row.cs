@@ -90,10 +90,8 @@ public class Row : DynamicDictionary, IEquatable<Row>
     
     public Row Clone() => new(this.items);
 
-    // ReSharper disable once MemberCanBePrivate.Global
     public Key CreateKey() => this.CreateKey(this.Columns.ToArray());
 
-    // ReSharper disable once MemberCanBePrivate.Global
     public Key CreateKey(params string[] columns)
     {
         var arr = new object?[columns.Length];
