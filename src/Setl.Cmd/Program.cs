@@ -91,7 +91,8 @@ internal static class SVBWWB65PlusExample
         const string line4 =
             "DTR 194228885Boomstra                 F     van       Fred                        19501129NL37INGB0628673523                           0   5555BB  333    Testlaan                Testdorp                                                                                                                                                      0201301010000000002";
         
-        const string line5 = "TPG 03446          5                    0";
+        const string line5 = 
+            "TPG 03446          5                    0";
         
         var lines = new[]
         {
