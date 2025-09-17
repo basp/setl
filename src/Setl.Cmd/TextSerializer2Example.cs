@@ -1,9 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 using Setl.Utils;
 
-internal static class TextSerializer2Example
+namespace Setl.Cmd;
+
+internal static partial class TextSerializer2Example
 {
- 
     private static readonly ITextSerializer berSerializer = 
         new TextSerializer2Builder()
             .Field(f =>
@@ -73,10 +74,10 @@ internal static class TextSerializer2Example
         const string path = @"D:\temp\SVB\SVBWWB65PLUS00002_3.txt";
         var serializers = new Dictionary<Regex, ITextSerializer>
         {
-            [new Regex(@"^BER") ] = TextSerializer2Example.berSerializer,
-            [new Regex(@"^GEM") ] = TextSerializer2Example.gemSerializer,
-            [new Regex(@"^DTR") ] = TextSerializer2Example.dtrSerializer,
-            [new Regex(@"^TPG") ] = TextSerializer2Example.tpgSerializer,
+            [TextSerializer2Example.BerRegex()] = TextSerializer2Example.berSerializer,
+            [TextSerializer2Example.GemRegex()] = TextSerializer2Example.gemSerializer,
+            [TextSerializer2Example.DtrRegex()] = TextSerializer2Example.dtrSerializer,
+            [TextSerializer2Example.TpgRegex()] = TextSerializer2Example.tpgSerializer,
         };
 
         using var stream = File.OpenRead(path);
@@ -102,4 +103,16 @@ internal static class TextSerializer2Example
             }
         }
     }
+
+    [GeneratedRegex(@"^BER")]
+    private static partial Regex BerRegex();
+    
+    [GeneratedRegex(@"^GEM")]
+    private static partial Regex GemRegex();
+    
+    [GeneratedRegex(@"^DTR")]
+    private static partial Regex DtrRegex();
+    
+    [GeneratedRegex(@"^TPG")]
+    private static partial Regex TpgRegex();
 }

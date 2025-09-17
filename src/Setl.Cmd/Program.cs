@@ -9,4 +9,4 @@ using var loggerFactory =
             })
             .SetMinimumLevel(LogLevel.Trace));
 
-TextSerializer2Example.Run();
+Setl.Cmd.TextSerializer2Example.Run();
