@@ -69,7 +69,7 @@ public abstract class AbstractPipelineExecutor : IPipelineExecutor
         using var enumerator = pipeline.GetEnumerator();
         try
         {
-            // Execute pipeline operations.
+            // Drain the pipeline (i.e. execute operations)
             while (enumerator.MoveNext())
             {
             }

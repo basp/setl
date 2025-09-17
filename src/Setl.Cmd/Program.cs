@@ -13,7 +13,47 @@ using var loggerFactory =
             })
             .SetMinimumLevel(LogLevel.Trace));
 
-ETlProcessExample.Run(loggerFactory);
+
+
+internal static class SVBWWB65PlusProcessExample
+{
+    public static void Run()
+    {
+        const string path = @"D:\temp\SVB\SVBWWB65PLUS00002_3.txt";
+        var op = new ExtractRows(path);
+        var rows = op.Execute([]);
+        foreach (dynamic row in rows)
+        {
+            Console.WriteLine(row.Recordcode);
+        }
+    }
+
+    private class ExtractRows : AbstractOperation
+    {
+        private readonly string path;
+
+        public ExtractRows(string path)
+        {
+            this.path = path;
+        }
+    
+        public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+        {
+            using var stream = File.OpenRead(path);
+            using var reader = new StreamReader(stream);
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+    
+                yield return WWB65Plus.Parser.Parse(line);
+            }
+        }
+    }
+}
 
 internal static class ETlProcessExample
 {
@@ -61,7 +101,7 @@ internal static class ETlProcessExample
     }
 }
 
-internal static class SVBWWB65PlusExample
+internal static class WWB65Plus
 {
     private static readonly ITextSerializer berichtSerializer =
         new SequentialTextSerializerBuilder()
@@ -113,7 +153,7 @@ internal static class SVBWWB65PlusExample
             .Field("WWBNorm", 2)
             .Build();
 
-    private static ITextSerializer tellingenSerializer =
+    private static readonly ITextSerializer tellingenSerializer =
         new SequentialTextSerializerBuilder()
             .Field("Recordcode", 4)
             .Field("Gemeentecode", 4)
@@ -121,7 +161,70 @@ internal static class SVBWWB65PlusExample
             .Field("TotaalAantalHuishoudens", 11)
             .Field("TotaalWWBBedrag", 11)
             .Build();
+
+    private class UnknownRecordException : Exception
+    {
+        public UnknownRecordException(string text)
+            : base("Unknown record type")
+        {
+            this.Text = text;
+        }
+
+        public string Text { get; }
+    }
     
+    public static class Parser
+    {
+        // These are the scanner expressions, they tell us what kind of record
+        // we're dealing with.
+        private static readonly string IsBerichtregelPattern = @"^BER";
+        private static readonly string IsGemeenteregelPattern = @"^GEM";
+        private static readonly string IsDetailregelPattern = @"^DTR";
+        private static readonly string IsTellingenregelPattern = @"^TPG";
+        
+        // These are the instantiated expressions, they are cached here mostly
+        // for performance reasons.
+        private static readonly Regex IsBerichtregel = new(IsBerichtregelPattern);
+        private static readonly Regex IsGemeenteregel = new(IsGemeenteregelPattern);
+        private static readonly Regex IsDetailregel = new(IsDetailregelPattern);
+        private static readonly Regex IsTellingenregel = new(IsTellingenregelPattern);
+        
+        // This is the serializer config, we configure a serializer for each
+        // scanner so it can return a specific record type. Note that records
+        // are returned as Row instances. It's up to the caller to cast them
+        // to the appropriate type (usually via the ToObject<T> method).
+        private static readonly IDictionary<Regex, Func<string, Row>> serializers =
+            new Dictionary<Regex, Func<string, Row>>()
+            {
+                [Parser.IsBerichtregel] = line => 
+                    WWB65Plus.berichtSerializer.Deserialize(line),
+                [Parser.IsGemeenteregel] = line => 
+                    WWB65Plus.gemeenteSerializer.Deserialize(line),
+                [Parser.IsDetailregel] = line => 
+                    WWB65Plus.detailSerializer.Deserialize(line),
+                [Parser.IsTellingenregel] = line => 
+                    WWB65Plus.tellingenSerializer.Deserialize(line),
+            };
+        
+        public static Row Parse(string line)
+        {
+            // Loop through all known serializers and see if we can find a
+            // match with the regex key.
+            foreach (var (pattern, serializer) in serializers)
+            {
+                if (pattern.IsMatch(line))
+                {
+                    return serializer(line);
+                }
+            }
+            
+            throw new UnknownRecordException(line);
+        }
+    }
+}
+
+internal static class SVBWWB65PlusExample
+{
     public static void Run()
     {
         const string line1 = 
@@ -154,7 +257,7 @@ internal static class SVBWWB65PlusExample
             tag.Foo = DateTime.Now;
             tag.Bar = Guid.NewGuid();
 
-            dynamic row = Parser.Parse(line);
+            dynamic row = WWB65Plus.Parser.Parse(line);
             row.Tag = tag;
             
             WriteRow(row);
@@ -173,61 +276,6 @@ internal static class SVBWWB65PlusExample
             SVBWWB65PlusExample.JsonSerializerOptions);
 
         Console.WriteLine(json);
-    }
-
-    private static class Parser
-    {
-        // These are the scanner expressions, they tell us what kind of record
-        // we're dealing with.
-        private static readonly string IsBerichtregelPattern = @"^BER";
-        private static readonly string IsGemeenteregelPattern = @"^GEM";
-        private static readonly string IsDetailregelPattern = @"^DTR";
-        private static readonly string IsTellingenregelPattern = @"^TPG";
-        
-        // These are the instantiated expressions, they are cached here mostly
-        // for performance reasons.
-        private static readonly Regex IsBerichtregel = new(IsBerichtregelPattern);
-        private static readonly Regex IsGemeenteregel = new(IsGemeenteregelPattern);
-        private static readonly Regex IsDetailregel = new(IsDetailregelPattern);
-        private static readonly Regex IsTellingenregel = new(IsTellingenregelPattern);
-        
-        // This is the serializer config, we configure a serializer for each
-        // scanner so it can return a specific record type. Note that records
-        // are returned as Row instances. It's up to the caller to cast them
-        // to the appropriate type (usually via the ToObject<T> method).
-        private static readonly IDictionary<Regex, Func<string, Row>> serializers =
-            new Dictionary<Regex, Func<string, Row>>()
-            {
-                [Parser.IsBerichtregel] = line => 
-                    SVBWWB65PlusExample.berichtSerializer.Deserialize(line),
-                [Parser.IsGemeenteregel] = line => 
-                    SVBWWB65PlusExample.gemeenteSerializer.Deserialize(line),
-                [Parser.IsDetailregel] = line => 
-                    SVBWWB65PlusExample.detailSerializer.Deserialize(line),
-                [Parser.IsTellingenregel] = line => 
-                    SVBWWB65PlusExample.tellingenSerializer.Deserialize(line),
-            };
-        
-        public static Row Parse(string line)
-        {
-            // Loop through all known serializers and see if we can find a
-            // match with the regex key.
-            foreach (var (pattern, serializer) in serializers)
-            {
-                if (pattern.IsMatch(line))
-                {
-                    return serializer(line);
-                }
-            }
-            
-            // Unable to parse the line, at this point we should probably
-            // throw an exception.
-            //
-            // TODO:
-            // Create exception type, include line and other metadata (line
-            // number, etc.)
-            throw new Exception("Unknown record type");
-        }
     }
 }
 

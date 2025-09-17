@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace Setl;
+﻿namespace Setl;
 
 public abstract class AbstractOperation : IOperation
 {
