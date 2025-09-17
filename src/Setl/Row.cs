@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace Setl;
 
@@ -187,6 +188,9 @@ public class Row : DynamicDictionary, IEquatable<Row>
     }
 
     public T ToObject<T>() => (T)this.ToObject(typeof(T));
+    
+    public string ToJson(JsonSerializerOptions? options = null) =>
+        JsonSerializer.Serialize(this, options);
     
     private static List<PropertyInfo> GetProperties(object obj)
     {

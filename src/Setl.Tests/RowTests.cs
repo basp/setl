@@ -1,4 +1,7 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Local
+
+using System.Text.Json;
+
 namespace Setl.Tests;
 
 public class RowTests
@@ -31,7 +34,7 @@ public class RowTests
     }
     
     [Fact]
-    public void SameRowsAreEqual()
+    public void SameContentRowsAreEqual()
     {
         var row1 = new Row
         {
@@ -120,6 +123,51 @@ public class RowTests
         Assert.Equal(1, obj.Id);
         Assert.Equal("foo", obj.Name);
         Assert.Equal(3.14, obj.Value);
+    }
+
+    [Fact]
+    public void ConvertRowToJsonWithDefaultOptions()
+    {
+        var foo = new Foo
+        {
+            Id = 123,
+            Name = "foo",
+            Value = 3.14,
+        };
+
+        var row = Row.FromObject(foo);
+        var json = row.ToJson();
+        
+        const string expected = """{"Id":123,"Name":"foo","Value":3.14}""";
+        Assert.Equal(expected, json);
+    }
+
+    [Fact]
+    public void ConvertRowToFormattedJson()
+    {
+        var foo = new Foo
+        {
+            Id = 123,
+            Name = "foo",
+            Value = 3.14,
+        };
+        
+        var row = Row.FromObject(foo);
+        var json = row.ToJson(new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            IndentSize = 4,
+        });
+
+        const string expected = """
+                                {
+                                    "Id": 123,
+                                    "Name": "foo",
+                                    "Value": 3.14
+                                }
+                                """;
+        
+        Assert.Equal(expected, json);
     }
     
     // ReSharper disable once ClassNeverInstantiated.Local

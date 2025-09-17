@@ -122,7 +122,4 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
         string key, 
         [MaybeNullWhen(false)] out object value) =>
             this.items.TryGetValue(key, out value);
-    
-    private static void ThrowKeyNotFoundException(string key) =>
-        throw new KeyNotFoundException($"Key '{key}' not found.");
 }
