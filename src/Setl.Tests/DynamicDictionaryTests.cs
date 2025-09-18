@@ -160,4 +160,26 @@ public class DynamicDictionaryTests
         Assert.Null(d.d);
         Assert.Null(d.D);
     }
+
+    [Fact]
+    public void NoValueConversionByDefault()
+    {
+        dynamic d = new DynamicDictionary();
+        d.a = null;
+        
+        Assert.Null(d.a);
+    }
+
+    [Fact]
+    public void DbNullValueConversion()
+    {
+        dynamic d = new DynamicDictionary()
+        {
+            ValueConverter = DynamicValueConverter.Database,
+        };
+
+        d.a = null;
+        
+        Assert.Equal(DBNull.Value, d.a);
+    }
 }

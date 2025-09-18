@@ -45,7 +45,7 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
             return null;
         }
         set => this.items[key] = 
-            value == DBNull.Value ? null : value;
+            this.ValueConverter.Convert(value);
     }
 
     public int Count => this.items.Count;
@@ -59,6 +59,9 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
     public IMissingKeyBehavior MissingKeyBehavior { get; init; } =
         Setl.MissingKeyBehavior.Throw;
 
+    public IDynamicValueConverter ValueConverter { get; init; } =
+        DynamicValueConverter.None;
+    
     public override bool TryGetMember(
         GetMemberBinder binder, 
         out object? result)
@@ -76,7 +79,8 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
         SetMemberBinder binder, 
         object? value)
     {
-        this.items[binder.Name] = value;
+        this.items[binder.Name] = 
+            this.ValueConverter.Convert(value);
         return true;
     }
     
