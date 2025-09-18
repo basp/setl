@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Setl.Tests;
@@ -18,7 +17,6 @@ public class EtlProcessTests
 
     private class TestProcess : EtlProcess
     {
-        private static readonly IOperation extract = new TestExtract();
         private static readonly TestLoad load = new();
         
         public TestProcess(IPipelineExecutor pipelineExecutor) 
@@ -45,9 +43,8 @@ public class EtlProcessTests
             foreach (var row in rows)
             {
                 this.Count += 1;
+                yield return row;
             }
-
-            yield break;
         }
     }
     
