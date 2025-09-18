@@ -45,13 +45,13 @@ internal static partial class TextSerializer2Example
                 {
                     f.Name = "Recordcode";
                     f.Length = 4;
-                    f.Converter = new TrimConverter();
+                    f.Converter = new PadRightConverter(4, '0');
                 })
                 .Field(f =>
                 {
                     f.Name = "SofinummerHp";
                     f.Length = 9;
-                    f.Converter = new PadLeftConverter(9, '0');
+                    f.Converter = new TrimConverter();
                 })
                 .Build();
     

@@ -4,7 +4,7 @@ public class PartialProcessOperation
     : EtlProcessBase<PartialProcessOperation>, IOperation
 {
     private IPipelineExecutor executor =
-        new ThrowingPipelineExecutor();
+        new UninitializedPipelineExecutor();
 
     private bool disposed;
     

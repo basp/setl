@@ -32,7 +32,7 @@ public abstract class AbstractOperation : IOperation
     public virtual string Name => this.GetType().Name;
 
     protected IPipelineExecutor PipelineExecutor { get; set; } =
-        new ThrowingPipelineExecutor();
+        new UninitializedPipelineExecutor();
     
     public virtual void Prepare(IPipelineExecutor pipelineExecutor)
     {
