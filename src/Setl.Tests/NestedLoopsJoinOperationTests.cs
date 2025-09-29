@@ -190,6 +190,7 @@ public class NestedLoopsJoinOperationTests
         
         var result = op.Execute([]).ToList();
         Assert.Equal(bars.Length, result.Count);
+        Assert.Equal("foo1:bar1", result[0]["bar_name"]);
         
         return;
 
@@ -201,6 +202,11 @@ public class NestedLoopsJoinOperationTests
             return merged;
         }
 
-        bool Match(Row left, Row right) => Equals(left["id"], right["foo_id"]);
+        bool Match(Row left, Row right)
+        {
+            left.MissingKeyBehavior = MissingKeyBehavior.Ignore;
+            right.MissingKeyBehavior = MissingKeyBehavior.Ignore;
+            return Equals(left["id"], right["foo_id"]);
+        }
     }
 }

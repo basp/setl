@@ -13,5 +13,6 @@ var loggerFactory =
 
 using (loggerFactory)
 {
-    Setl.Cmd.SVBWWB65PlusProcessExample.Run(loggerFactory);    
+    // Setl.Cmd.SVBWWB65PlusProcessExample.Run(loggerFactory);
+    Setl.Cmd.Example3.Run(loggerFactory);
 }

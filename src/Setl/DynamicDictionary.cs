@@ -55,7 +55,7 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
 
     public ICollection<object?> Values => this.items.Values;
 
-    public IMissingKeyBehavior MissingKeyBehavior { get; init; } =
+    public IMissingKeyBehavior MissingKeyBehavior { get; set; } =
         Setl.MissingKeyBehavior.Throw;
 
     public IDynamicValueConverter ValueConverter { get; init; } =
