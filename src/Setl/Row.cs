@@ -72,9 +72,14 @@ public class Row : DynamicDictionary, IEquatable<Row>
     /// </summary>
     /// <param name="obj">The source object for the row.</param>
     /// <returns>A new <see cref="Row"/> object.</returns>
-    public static Row FromObject(object obj)
+    public static Row FromObject(object? obj)
     {
         var row = new Row();
+
+        if (obj is null)
+        {
+            return row;
+        }
 
         var properties = GetProperties(obj);
         var fields = GetFields(obj);
