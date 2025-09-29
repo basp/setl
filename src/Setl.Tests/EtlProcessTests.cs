@@ -12,33 +12,43 @@ public class EtlProcessTests
     {
         var loggerFactory = new Mock<ILoggerFactory>();
         var executor = new SingleThreadedPipelineExecutor(loggerFactory.Object);
-        var process = new TestProcess(executor);
+        var process = new TestProcess(executor, loggerFactory.Object);
         process.Execute();
         Assert.Equal(3, process.Count);
     }
 
     private class TestProcess : EtlProcess
     {
-        private static readonly TestLoad load = new();
+        private readonly ILoggerFactory loggerFactory;
+        private readonly TestLoad load;
         
-        public TestProcess(IPipelineExecutor pipelineExecutor) 
+        public TestProcess(
+            IPipelineExecutor pipelineExecutor,
+            ILoggerFactory loggerFactory) 
             : base(pipelineExecutor)
         {
+            this.loggerFactory = loggerFactory;
+            this.load = new TestLoad(loggerFactory);
         }
         
-        public int Count => TestProcess.load.Count;
+        public int Count => this.load.Count;
 
         protected override void Initialize()
         {
             var objects = new object[] { 1, 2, 3 };
-            this.Register(new TestExtract(objects));
-            this.Register(TestProcess.load);       
+            this.Register(new TestExtract(this.loggerFactory, objects));
+            this.Register(this.load);       
         }
     }
 
     private class TestLoad : AbstractOperation
     {
         public int Count { get; private set; }
+
+        public TestLoad(ILoggerFactory loggerFactory)
+            : base(loggerFactory.CreateLogger<TestLoad>())
+        {
+        }
         
         public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
         {
@@ -54,7 +64,10 @@ public class EtlProcessTests
     {
         private readonly object[] objects;
         
-        public TestExtract(params object[] objects)
+        public TestExtract(
+            ILoggerFactory loggerFactory,
+            params object[] objects)
+            : base(loggerFactory.CreateLogger<TestExtract>())
         {
             this.objects = objects;
         }

@@ -8,26 +8,36 @@ internal static class ETlProcessExample
     public static void Run(ILoggerFactory loggerFactory)
     {
         var executor = new SingleThreadedPipelineExecutor(loggerFactory);
-        var process = new TestProcess(executor);
+        var process = new TestProcess(executor, loggerFactory);
         process.Execute();
     }
     
     private class TestProcess : EtlProcess
     {
-        public TestProcess(IPipelineExecutor pipelineExecutor) 
+        private ILoggerFactory loggerFactory;
+        
+        public TestProcess(
+            IPipelineExecutor pipelineExecutor,
+            ILoggerFactory loggerFactory) 
             : base(pipelineExecutor)
         {
+            this.loggerFactory = loggerFactory;
         }
 
         protected override void Initialize()
         {
-            this.Register(new Extract());
-            this.Register(new Write());
+            this.Register(new Extract(this.loggerFactory));
+            this.Register(new Write(this.loggerFactory));
         }
     }
     
     private class Extract : AbstractOperation
     {
+        public Extract(ILoggerFactory loggerFactory)
+            : base(loggerFactory.CreateLogger<Extract>())
+        {
+        }
+        
         public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
         {
             yield return new Row();
@@ -37,6 +47,11 @@ internal static class ETlProcessExample
 
     private class Write : AbstractOperation
     {
+        public Write(ILoggerFactory loggerFactory)
+            : base(loggerFactory.CreateLogger<Write>())
+        {
+        }
+        
         public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
         {
             foreach (var row in rows)

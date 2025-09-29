@@ -1,12 +1,13 @@
-﻿using Setl;
+﻿using Microsoft.Extensions.Logging;
+using Setl;
 using Setl.Operations;
 
 internal static class SVBWWB65PlusProcessExample
 {
-    public static void Run()
+    public static void Run(ILoggerFactory loggerFactory)
     {
         const string path = @"D:\temp\SVB\SVBWWB65PLUS00002_3.txt";
-        var op = new ExtractRows(path);
+        var op = new ExtractRows(path, loggerFactory);
         var rows = op.Execute([]);
         foreach (dynamic row in rows)
         {
@@ -18,7 +19,8 @@ internal static class SVBWWB65PlusProcessExample
     {
         private readonly string path;
 
-        public ExtractRows(string path)
+        public ExtractRows(string path, ILoggerFactory loggerFactory) 
+            : base(loggerFactory.CreateLogger<ExtractRows>())
         {
             this.path = path;
         }
