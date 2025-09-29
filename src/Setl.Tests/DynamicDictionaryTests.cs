@@ -28,7 +28,6 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
-            MissingKeyBehavior = MissingKeyBehavior.Ignore,
         };
 
         Assert.Equal(1, d["a"]);
@@ -49,8 +48,11 @@ public class DynamicDictionaryTests
             ["b"] = 2,
             ["c"] = 3,
         };
-        
-        dynamic d = new DynamicDictionary(existing);
+
+        dynamic d = new DynamicDictionary(existing)
+        {
+            MissingKeyBehavior = MissingKeyBehavior.Throw,
+        };
 
         Assert.Equal(1, d.a);
         Assert.Equal(2, d.b);
@@ -68,10 +70,13 @@ public class DynamicDictionaryTests
             ["b"] = 2,
             ["c"] = 3,
         };
-        
+
         dynamic d = new DynamicDictionary(
-            existing, 
-            StringComparer.InvariantCultureIgnoreCase);
+            existing,
+            StringComparer.InvariantCultureIgnoreCase)
+        {
+            MissingKeyBehavior = MissingKeyBehavior.Throw,
+        };
 
         Assert.Equal(1, d.A);
         Assert.Equal(1, d.a);
@@ -90,6 +95,7 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
+            MissingKeyBehavior = MissingKeyBehavior.Throw,       
         };
         
         Assert.Equal(1, d["a"]);
@@ -107,6 +113,7 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
+            MissingKeyBehavior = MissingKeyBehavior.Throw,      
         };
         
         Assert.Equal(1, d["a"]);
@@ -148,7 +155,6 @@ public class DynamicDictionaryTests
             ["a"] = 1,
             ["b"] = 2,
             ["c"] = 3,
-            MissingKeyBehavior = MissingKeyBehavior.Ignore,
         };
         
         Assert.Equal(1, d.a);

@@ -6,6 +6,11 @@ namespace Setl.Tests;
 
 public class NestedLoopsJoinOperationTests
 {
+    // For this set of tests:
+    // Usually the pipeline executor is set by the ETL process hosting
+    // the operation, but since we have no process here, we need to prepare
+    // the operation manually.
+
     // ReSharper disable once MemberCanBePrivate.Global
     public class TestJoinOp : NestedLoopsJoinOperation
     {
@@ -24,11 +29,6 @@ public class NestedLoopsJoinOperationTests
 
         protected override Row MergeRows(Row leftRow, Row rightRow) =>
             this.merge(leftRow, rightRow);
-        // {
-        //     var merged = leftRow.Clone();
-        //     merged["bar"] = rightRow["bar"];
-        //     return merged;
-        // }
 
         protected override bool MatchJoinCondition(Row leftRow, Row rightRow)
         {
@@ -54,7 +54,7 @@ public class NestedLoopsJoinOperationTests
     }
     
     [Fact]
-    public void Sandbox()
+    public void LeftOrientedJoin()
     {
         var logger = new Mock<ILogger<TestJoinOp>>();
         var loggerFactory = new Mock<ILoggerFactory>();
@@ -69,9 +69,6 @@ public class NestedLoopsJoinOperationTests
         var pipelineExecutor = 
             new SingleThreadedPipelineExecutor(loggerFactory.Object);
 
-        // Usually the pipeline executor is set by the ETL process hosting
-        // the operation, but since we have no process here, we need to prepare
-        // the operation manually.
         op.Prepare(pipelineExecutor);
         
         var result = op.Execute([]).ToList();
@@ -92,7 +89,7 @@ public class NestedLoopsJoinOperationTests
     }
     
     [Fact]
-    public void Sandbox2()
+    public void RightOrientedJoin()
     {
         var logger = new Mock<ILogger<TestJoinOp>>();
         var loggerFactory = new Mock<ILoggerFactory>();
@@ -107,9 +104,6 @@ public class NestedLoopsJoinOperationTests
         var pipelineExecutor = 
             new SingleThreadedPipelineExecutor(loggerFactory.Object);
 
-        // Usually the pipeline executor is set by the ETL process hosting
-        // the operation, but since we have no process here, we need to prepare
-        // the operation manually.
         op.Prepare(pipelineExecutor);
         
         var result = op.Execute([]).ToList();
@@ -132,8 +126,8 @@ public class NestedLoopsJoinOperationTests
     [Fact]
     public void SimpleInnerJoinExample()
     {
-        var foos = new[]
-        {
+        object?[] foos =
+        [
             new
             {
                 id = 1,
@@ -144,10 +138,10 @@ public class NestedLoopsJoinOperationTests
                 id = 2,
                 name = "foo2",
             }
-        };
+        ];
 
-        var bars = new[]
-        {
+        object?[] bars =
+        [
             new
             {
                 id = 1,
@@ -177,8 +171,8 @@ public class NestedLoopsJoinOperationTests
                 id = 5,
                 foo_id = 2,
                 name = "foo2:bar5",
-            },
-        };
+            }
+        ];
         
         var logger = new Mock<ILogger<TestJoinOp>>();
         var loggerFactory = new Mock<ILoggerFactory>();

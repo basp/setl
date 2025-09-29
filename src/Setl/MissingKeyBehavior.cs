@@ -4,13 +4,14 @@
 public class MissingKeyBehavior : IMissingKeyBehavior
 {
     /// <summary>
-    /// Ignore the missing key and return <c>null</c>.
+    /// Ignore the missing key and return <c>null</c>, this is considered
+    /// normal behavior.
     /// </summary>
     public static readonly IMissingKeyBehavior Ignore =
         new MissingKeyBehavior((_, _) => null);
 
     /// <summary>
-    /// Throw an exception, this is equivalent to default behavior.
+    /// Throw an exception, this is considered exceptional behavior.
     /// </summary>
     public static readonly IMissingKeyBehavior Throw =
         new MissingKeyBehavior((key, _) =>
