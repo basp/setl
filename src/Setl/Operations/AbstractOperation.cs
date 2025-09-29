@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Setl.Operations;
 
@@ -8,28 +7,18 @@ namespace Setl.Operations;
 /// </summary>
 public abstract class AbstractOperation : IOperation
 {
-    private readonly ILogger logger;
-
+    private readonly ErrorCollectingLoggerAdapter logger;
+    
     protected AbstractOperation(ILogger logger)
     {
-        this.logger = logger;
+        this.logger = new ErrorCollectingLoggerAdapter(logger);
     }
     
-    private event Action<IOperation> onStartedProcessing =
-        _ => { };
-
     private event Action<IOperation, Row> onRowProcessed =
         (_, _) => { };
 
     private event Action<IOperation> onFinishedProcessing =
         _ => { };
-    
-    /// <inheritdoc/>
-    public virtual event Action<IOperation> StartedProcessing
-    {
-        add => this.onStartedProcessing += value;
-        remove => this.onStartedProcessing -= value;
-    }
     
     /// <inheritdoc/>
     public virtual event Action<IOperation, Row> RowProcessed
@@ -51,25 +40,29 @@ public abstract class AbstractOperation : IOperation
     /// <inheritdoc/>
     public OperationStatistics Statistics { get; } = new();
     
-    /// <summary>
-    /// Provides the pipeline executor for this operation.
-    /// </summary>
-    /// <remarks>
-    /// Normally this will be set by the <see cref="Prepare"/> method.
-    /// </remarks>
-    protected IPipelineExecutor PipelineExecutor { get; set; } =
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    internal IPipelineExecutor PipelineExecutor { get; private set; } =
         new UninitializedPipelineExecutor();
-    
+
     /// <inheritdoc/>
+    // ReSharper disable once ParameterHidesMember
     public virtual void Prepare(IPipelineExecutor pipelineExecutor)
     {
-        this.onStartedProcessing(this);
         this.PipelineExecutor = pipelineExecutor;
+        this.Statistics.MarkStarted();
     }
     
     /// <inheritdoc/>
     public abstract IEnumerable<Row> Execute(IEnumerable<Row> rows);
     
+    /// <inheritdoc/>
+    public IEnumerable<Exception> GetErrors() => this.logger.GetErrors();
+    
+    /// <inheritdoc/>
+    public override string ToString() =>
+        $"{this.Name} ({this.Statistics.Processed} rows processed in {this.Statistics.Duration})";
+
+
     /// <inheritdoc/>
     public void Dispose()
     {
@@ -80,10 +73,16 @@ public abstract class AbstractOperation : IOperation
     protected virtual void Dispose(bool disposing)
     {
     }
-    
-    void IOperation.RaiseRowProcessed(Row row) =>
+
+    void IOperation.RaiseRowProcessed(Row row)
+    {
+        this.Statistics.MarkRowProcessed();
         this.onRowProcessed(this, row);
-    
-    void IOperation.RaiseFinishedProcessing() =>
+    }
+
+    void IOperation.RaiseFinishedProcessing()
+    {
+        this.Statistics.MarkFinished();
         this.onFinishedProcessing(this);
+    }
 }

@@ -8,11 +8,11 @@ public abstract class EtlProcessBase<T>
     private readonly List<IOperation> lastOperations = [];
     protected readonly List<IOperation> operations = [];
 
-    private readonly ILogger logger;
+    internal readonly ErrorCollectingLoggerAdapter logger;
     
     protected EtlProcessBase(ILogger logger)
     {
-        this.logger = logger;
+        this.logger = new ErrorCollectingLoggerAdapter(logger);
     }
     
     public string Name => this.GetType().Name;
@@ -20,12 +20,20 @@ public abstract class EtlProcessBase<T>
     public T Register(IOperation operation)
     {
         this.operations.Add(operation);
+        this.logger.LogDebug(
+            "Register {Operation} in {Process}", 
+            operation.Name, 
+            this.Name);
         return (T)this;
     }
     
     public T RegisterLast(IOperation operation)
     {
         this.lastOperations.Add(operation);
+        this.logger.LogDebug(
+            "Register {Operation} (last) in {Process}",
+            operation.Name,
+            this.Name);
         return (T)this;
     }
 

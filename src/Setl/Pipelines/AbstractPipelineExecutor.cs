@@ -17,19 +17,27 @@ public abstract class AbstractPipelineExecutor : IPipelineExecutor
     
     public virtual void Execute(
         string name,
-        ICollection<IOperation> pipeline,
+        ICollection<IOperation> operations,
         Func<IEnumerable<Row>, IEnumerable<Row>> translate)
     {
         try
         {
-            var enumerable = this.ToEnumerable(pipeline, [], translate);
+            var pipeline = this.ToPipeline(
+                operations, 
+                [], 
+                translate);
+            
             try
             {
                 this.RaiseStaring();
                 var start = DateTime.Now;
-                this.ExecutePipeline(enumerable);
+                this.ExecutePipeline(pipeline);
                 this.RaiseFinishing();
                 var duration = DateTime.Now - start;
+                this.logger.LogTrace(
+                    "Completed process {Process} in {Duration}",
+                    name,
+                    duration);
             }
             catch (Exception ex)
             {
@@ -46,14 +54,26 @@ public abstract class AbstractPipelineExecutor : IPipelineExecutor
                 "Failed to create {Pipeline}", 
                 name);
         }
+        
+        this.DisposeOperations(operations);
     }
     
-    public virtual IEnumerable<Row> ToEnumerable(
-        IEnumerable<IOperation> pipeline,
+    /// <summary>
+    /// Connects the registered operations into a single enumerable of
+    /// <see cref="Row"/> objects. 
+    /// </summary>
+    /// <param name="operations">The operations for the pipeline.</param>
+    /// <param name="rows">Any input rows.</param>
+    /// <param name="translate">
+    /// A function to translate rows between operations.
+    /// </param>
+    /// <returns></returns>
+    public virtual IEnumerable<Row> ToPipeline(
+        IEnumerable<IOperation> operations,
         IEnumerable<Row> rows,
         Func<IEnumerable<Row>, IEnumerable<Row>> translate)
     {
-        foreach (var op in pipeline)
+        foreach (var op in operations)
         {
             op.Prepare(this);
             var enumerable = op.Execute(rows);
@@ -88,6 +108,24 @@ public abstract class AbstractPipelineExecutor : IPipelineExecutor
     
     protected virtual void RaiseFinishing() =>
         this.Finishing(this);
+
+    protected void DisposeOperations(ICollection<IOperation> operations)
+    {
+        foreach (var op in operations)
+        {
+            try
+            {
+                op.Dispose();
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(
+                    ex,
+                    "Failed to dispose operation {Operation}",
+                    op.Name);
+            }
+        }
+    }
     
     protected abstract IEnumerable<Row> Decorate(
         IOperation op, 

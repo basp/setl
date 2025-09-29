@@ -10,8 +10,8 @@ internal class UninitializedPipelineExecutor : IPipelineExecutor
         Func<IEnumerable<Row>, IEnumerable<Row>> translate) =>
         throw CreatePipelineExecutorException();
 
-    public IEnumerable<Row> ToEnumerable(
-        IEnumerable<IOperation> pipeline, 
+    public IEnumerable<Row> ToPipeline(
+        IEnumerable<IOperation> operations, 
         IEnumerable<Row> rows, 
         Func<IEnumerable<Row>, IEnumerable<Row>> translate) =>
         throw CreatePipelineExecutorException();

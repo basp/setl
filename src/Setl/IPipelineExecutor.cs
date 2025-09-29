@@ -7,8 +7,8 @@ public interface IPipelineExecutor
         ICollection<IOperation> pipeline,
         Func<IEnumerable<Row>, IEnumerable<Row>> translate);
 
-    IEnumerable<Row> ToEnumerable(
-        IEnumerable<IOperation> pipeline,
+    IEnumerable<Row> ToPipeline(
+        IEnumerable<IOperation> operations,
         IEnumerable<Row> rows,
         Func<IEnumerable<Row>, IEnumerable<Row>> translate);
 }

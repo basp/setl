@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
 using Setl.Operations;
-using Setl.Pipelines;
 
 namespace Setl.Tests;
 
@@ -10,14 +9,20 @@ public class EtlProcessTests
     [Fact]
     public void TestExecute()
     {
+        var logger = new Mock<ILogger>();
         var loggerFactory = new Mock<ILoggerFactory>();
+        loggerFactory
+            .Setup(f => f.CreateLogger(It.IsAny<string>()))
+            .Returns(logger.Object);
         var executor = new SingleThreadedPipelineExecutor(loggerFactory.Object);
         var process = new TestProcess(executor, loggerFactory.Object);
         process.Execute();
         Assert.Equal(3, process.Count);
     }
 
-    private class TestProcess : EtlProcess
+    // ReSharper disable once MemberCanBePrivate.Global
+    // This needs to be public, otherwise Moq cannot proxy it.
+    public class TestProcess : EtlProcess
     {
         private readonly ILoggerFactory loggerFactory;
         private readonly TestLoad load;

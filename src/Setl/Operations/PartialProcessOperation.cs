@@ -14,24 +14,6 @@ public class PartialProcessOperation
         : base(factory.CreateLogger<PartialProcessOperation>())
     {
     }
-    
-    public event Action<IOperation>? StartedProcessing
-    {
-        add
-        {
-            foreach (var op in this.operations)
-            {
-                op.StartedProcessing += value;           
-            }
-        }
-        remove
-        {
-            foreach (var op in this.operations)
-            {
-                op.StartedProcessing -= value;           
-            }
-        }
-    }
 
     public event Action<IOperation, Row> RowProcessed
     {
@@ -83,11 +65,14 @@ public class PartialProcessOperation
     public IEnumerable<Row> Execute(IEnumerable<Row> rows)
     {
         this.MergeLastOperations();
-        return this.executor.ToEnumerable(
+        return this.executor.ToPipeline(
             this.operations,
             rows,
             enumerable => enumerable);
     }
+
+    public IEnumerable<Exception> GetErrors() => 
+        this.operations.SelectMany(x => x.GetErrors());
 
     public virtual void RaiseRowProcessed(Row row)
     {

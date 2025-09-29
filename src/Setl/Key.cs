@@ -1,11 +1,11 @@
 ﻿namespace Setl;
 
 /// <summary>
-/// Represents a key for a set of objects.
+/// Represents a key based on a set of objects.
 /// </summary>
 /// <remarks>
-/// The main purposes of this class are to provide a way to compare two keys
-/// for equality and to generate a hash code for the key.
+/// The main purposes of this class are to provide a way to easily compare
+/// and hash sets of objects.
 /// </remarks>
 public class Key
 {

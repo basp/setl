@@ -5,11 +5,6 @@ namespace Setl;
 public interface IOperation : IDisposable
 {
     string Name { get; }
-
-    /// <summary>
-    /// Occurs when the operation starts processing.
-    /// </summary>
-    event Action<IOperation> StartedProcessing;
     
     /// <summary>
     /// Occurs when a row has finished processing.
@@ -40,7 +35,9 @@ public interface IOperation : IDisposable
     /// <param name="rows">The input rows.</param>
     /// <returns>The output rows.</returns>
     IEnumerable<Row> Execute(IEnumerable<Row> rows);
-    
+
+    IEnumerable<Exception> GetErrors();
+
     /// <summary>
     /// Raises the <c>RowProcessed</c> event for the specified row.
     /// </summary>
