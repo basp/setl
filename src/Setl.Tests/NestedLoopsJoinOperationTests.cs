@@ -30,8 +30,12 @@ public class NestedLoopsJoinOperationTests
         //     return merged;
         // }
 
-        protected override bool MatchJoinCondition(Row leftRow, Row rightRow) =>
-            this.match(leftRow, rightRow);
+        protected override bool MatchJoinCondition(Row leftRow, Row rightRow)
+        {
+            leftRow.MissingKeyBehavior = MissingKeyBehavior.Ignore;
+            rightRow.MissingKeyBehavior = MissingKeyBehavior.Ignore;
+            return this.match(leftRow, rightRow);
+        }
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
@@ -197,8 +201,8 @@ public class NestedLoopsJoinOperationTests
         Row Merge(Row left, Row right)
         {
             var merged = left.Clone();
-            left["bar_id"] = right["id"];
-            left["bar_name"] = right["name"];
+            merged["bar_id"] = right["id"];
+            merged["bar_name"] = right["name"];
             return merged;
         }
 
