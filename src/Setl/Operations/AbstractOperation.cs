@@ -7,7 +7,7 @@ namespace Setl.Operations;
 /// </summary>
 public abstract class AbstractOperation : IOperation
 {
-    private readonly ErrorCollectingLoggerAdapter logger;
+    internal readonly ErrorCollectingLoggerAdapter logger;
     
     protected AbstractOperation(ILogger logger)
     {
@@ -56,7 +56,8 @@ public abstract class AbstractOperation : IOperation
     public abstract IEnumerable<Row> Execute(IEnumerable<Row> rows);
     
     /// <inheritdoc/>
-    public IEnumerable<Exception> GetErrors() => this.logger.GetErrors();
+    public virtual IEnumerable<Exception> GetErrors() => 
+        this.logger.GetErrors();
     
     /// <inheritdoc/>
     public override string ToString() =>

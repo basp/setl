@@ -2,6 +2,8 @@
 using Setl;
 using Setl.Utils;
 
+namespace Setl.Cmd;
+
 internal static class WWB65Plus
 {
     private static readonly ITextSerializer berichtSerializer =

@@ -10,6 +10,11 @@ public class PartialProcessOperation
 
     private bool disposed;
 
+    internal PartialProcessOperation(ILogger logger)
+        : base(logger)
+    {
+    }
+    
     public PartialProcessOperation(ILoggerFactory factory)
         : base(factory.CreateLogger<PartialProcessOperation>())
     {

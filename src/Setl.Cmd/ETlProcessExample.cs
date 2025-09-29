@@ -3,6 +3,8 @@ using Setl;
 using Setl.Operations;
 using Setl.Pipelines;
 
+namespace Setl.Cmd;
+
 internal static class ETlProcessExample
 {
     public static void Run(ILoggerFactory loggerFactory)
@@ -40,8 +42,21 @@ internal static class ETlProcessExample
         
         public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
         {
-            yield return new Row();
-            yield return new Row();
+            var objects = new[]
+            {
+                new
+                {
+                    Id = 1,
+                    Name = "John",
+                },
+                new
+                {
+                    Id = 2,
+                    Name = "Jane",
+                },
+            };
+
+            return objects.Select(Row.FromObject);
         }
     }
 

@@ -40,6 +40,8 @@ internal class ErrorCollectingLoggerAdapter : ILogger
                 exception);
             this.errors.Add(error);
         }
+        
+        this.logger.Log(logLevel, eventId, state, exception, formatter);
     }
 
     public bool IsEnabled(LogLevel logLevel) => 

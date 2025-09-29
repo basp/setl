@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using Setl;
 
+namespace Setl.Cmd;
+
 internal static class SVBWWB65PlusExample
 {
     public static void Run()

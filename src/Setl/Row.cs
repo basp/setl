@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Setl;
 
@@ -229,6 +230,8 @@ public class Row : DynamicDictionary, IEquatable<Row>
     /// <returns>A JSON string representing the row.</returns>
     public string ToJson(JsonSerializerOptions? options = null) =>
         JsonSerializer.Serialize(this, options);
+
+    public JsonNode? ToJsonNode() => JsonNode.Parse(this.ToJson());
     
     private static List<PropertyInfo> GetProperties(object obj)
     {

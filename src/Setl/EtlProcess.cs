@@ -35,7 +35,7 @@ public abstract class EtlProcess
         this.Initialize();
         this.MergeLastOperations();
         this.WireOperationEvents();
-        this.logger.LogTrace("Starting to execute {Process}", this.Name);
+        this.logger.LogTrace("Starting {Process}", this.Name);
         this.pipelineExecutor.Execute(
             this.Name,
             this.operations,
@@ -88,8 +88,8 @@ public abstract class EtlProcess
         {
             this.logger.LogDebug(
                 "Processed {Processed} rows in {Operation}",
-                op.Name,
-                op.Statistics);
+                op.Statistics.Processed,
+                op.Name);
         }
     }
 

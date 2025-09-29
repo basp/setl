@@ -2,19 +2,59 @@
 using Setl;
 using Setl.Operations;
 
+namespace Setl.Cmd;
+
 internal static class SVBWWB65PlusProcessExample
 {
     public static void Run(ILoggerFactory loggerFactory)
     {
-        const string path = @"D:\temp\SVB\SVBWWB65PLUS00002_3.txt";
-        var op = new ExtractRows(path, loggerFactory);
-        var rows = op.Execute([]);
-        foreach (dynamic row in rows)
+        var pipelineExecutor = new SingleThreadedPipelineExecutor(loggerFactory);
+        var logger = loggerFactory.CreateLogger(nameof(pipelineExecutor));
+        pipelineExecutor.Starting += _ => logger.LogInformation("Starting");
+        pipelineExecutor.Finishing += _ => logger.LogInformation("Finishing");
+        var process = new Verwerk65Plus(pipelineExecutor, loggerFactory);
+        process.Execute();
+    }
+
+    private class Verwerk65Plus : EtlProcess
+    {
+        private readonly ILoggerFactory loggerFactory;
+        
+        public Verwerk65Plus(
+            IPipelineExecutor pipelineExecutor,
+            ILoggerFactory loggerFactory)
+            : base(pipelineExecutor, loggerFactory.CreateLogger<Verwerk65Plus>())
         {
-            Console.WriteLine(row.Recordcode);
+            this.loggerFactory = loggerFactory;
+        }
+
+        protected override void Initialize()
+        {
+            const string path = @"D:\temp\SVB\SVBWWB65PLUS00002_3.txt";
+            this.Register(new ExtractRows(path, this.loggerFactory));
+            this.Register(new WriteRows(this.loggerFactory));
         }
     }
 
+    private class WriteRows : AbstractOperation
+    {
+        public WriteRows(ILoggerFactory loggerFactory) 
+            : base(loggerFactory.CreateLogger<WriteRows>())
+        {
+        }
+
+        public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+        {
+            foreach (var row in rows)
+            {
+                var node = row.ToJsonNode();
+                var code = node!["Recordcode"];
+                Console.WriteLine($"=> {code}");
+                yield return row.Clone();
+            }
+        }
+    }
+    
     private class ExtractRows : AbstractOperation
     {
         private readonly string path;

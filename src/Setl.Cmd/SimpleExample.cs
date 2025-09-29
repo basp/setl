@@ -1,5 +1,7 @@
 ﻿using Setl.Utils;
 
+namespace Setl.Cmd;
+
 internal static class SimpleExample
 {
     public static void Run()
