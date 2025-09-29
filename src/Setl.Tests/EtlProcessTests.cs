@@ -25,7 +25,7 @@ public class EtlProcessTests
         public TestProcess(
             IPipelineExecutor pipelineExecutor,
             ILoggerFactory loggerFactory) 
-            : base(pipelineExecutor)
+            : base(pipelineExecutor, loggerFactory.CreateLogger<TestProcess>())
         {
             this.loggerFactory = loggerFactory;
             this.load = new TestLoad(loggerFactory);

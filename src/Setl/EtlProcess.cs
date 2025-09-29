@@ -1,4 +1,4 @@
-﻿using Setl.Pipelines;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Setl;
 
@@ -9,7 +9,10 @@ public abstract class EtlProcess
     
     private bool disposed;
     
-    protected EtlProcess(IPipelineExecutor pipelineExecutor)
+    protected EtlProcess(
+        IPipelineExecutor pipelineExecutor,
+        ILogger logger)
+        : base(logger)
     {
         this.pipelineExecutor = pipelineExecutor;
     }

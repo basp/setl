@@ -1,4 +1,6 @@
-﻿namespace Setl.Operations;
+﻿using Microsoft.Extensions.Logging;
+
+namespace Setl.Operations;
 
 public class PartialProcessOperation
     : EtlProcessBase<PartialProcessOperation>, IOperation
@@ -7,6 +9,11 @@ public class PartialProcessOperation
         new UninitializedPipelineExecutor();
 
     private bool disposed;
+
+    public PartialProcessOperation(ILoggerFactory factory)
+        : base(factory.CreateLogger<PartialProcessOperation>())
+    {
+    }
     
     public event Action<IOperation>? StartedProcessing
     {
