@@ -35,6 +35,7 @@ public abstract class NestedLoopsJoinOperation : AbstractJoinOperation
             new EventRaisingEnumerator(
                 this.right,
                 this.right.Execute([])));
+        
         var execute =
             this.left.Execute(this.isLeftRegistered ? [] : rows);
         
@@ -92,5 +93,18 @@ public abstract class NestedLoopsJoinOperation : AbstractJoinOperation
         }
     }
 
+    /// <summary>
+    /// Returns <c>true</c> if the two rows should be joined.
+    /// </summary>
+    /// <param name="leftRow">The left side of the join.</param>
+    /// <param name="rightRow">The right side of the join.</param>
+    /// <returns>
+    /// <c>true</c> if the rows should be joined, otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    /// When implementing this method, it's usually preferable to use
+    /// <c>Equals(obj, obj)</c> to check for equality unless you have a specific
+    /// reason not to.
+    /// </remarks>
     protected abstract bool MatchJoinCondition(Row leftRow, Row rightRow);
 }
