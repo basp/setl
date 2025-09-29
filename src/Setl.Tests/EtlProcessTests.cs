@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
+using Setl.Operations;
 using Setl.Pipelines;
 
 namespace Setl.Tests;

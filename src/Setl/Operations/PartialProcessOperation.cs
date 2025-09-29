@@ -1,6 +1,4 @@
-﻿using Setl.Pipelines;
-
-namespace Setl;
+﻿namespace Setl.Operations;
 
 public class PartialProcessOperation
     : EtlProcessBase<PartialProcessOperation>, IOperation
@@ -64,6 +62,8 @@ public class PartialProcessOperation
         }
     }
 
+    public OperationStatistics Statistics { get; } = new();
+    
     public void Prepare(IPipelineExecutor pipelineExecutor)
     {
         this.executor = pipelineExecutor;

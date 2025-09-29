@@ -1,6 +1,4 @@
-﻿using Setl.Pipelines;
-
-namespace Setl;
+﻿namespace Setl.Operations;
 
 public abstract class AbstractOperation : IOperation
 {
@@ -31,8 +29,18 @@ public abstract class AbstractOperation : IOperation
         remove => this.onFinishedProcessing -= value;
     }
 
+    /// <inheritdoc/>
     public virtual string Name => this.GetType().Name;
 
+    /// <inheritdoc/>
+    public OperationStatistics Statistics { get; } = new();
+    
+    /// <summary>
+    /// Provides the pipeline executor for this operation.
+    /// </summary>
+    /// <remarks>
+    /// Normally this will be set by the <see cref="Prepare"/> method.
+    /// </remarks>
     protected IPipelineExecutor PipelineExecutor { get; set; } =
         new UninitializedPipelineExecutor();
     

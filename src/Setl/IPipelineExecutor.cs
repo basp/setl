@@ -1,4 +1,4 @@
-﻿namespace Setl.Pipelines;
+﻿namespace Setl;
 
 public interface IPipelineExecutor
 {
