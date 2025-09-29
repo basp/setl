@@ -16,40 +16,43 @@ public class Row : DynamicDictionary, IEquatable<Row>
     private static readonly Dictionary<Type, List<FieldInfo>> fieldCache = new();
     
     /// <summary>
-    /// Create a new empty row.
+    /// Creates a new empty row.
     /// </summary>
     public Row()
     {
     }
 
     /// <summary>
-    /// Create a new row from an existing dictionary.
+    /// Creates a new row from an existing dictionary.
     /// </summary>
-    /// <param name="items">Dictionary.</param>
+    /// <param name="items">The source dictionary.</param>
     public Row(IDictionary<string, object?> items)
         : base(items)
     {
     }
 
     /// <summary>
-    /// Create a new row with a specific comparer.
+    /// Creates a new row with a specific comparer.
     /// </summary>
-    /// <param name="comparer">Comparer</param>
+    /// <param name="comparer">The comparer to use for this row.</param>
     public Row(StringComparer comparer)
         : base(comparer)
     {
     }
 
     /// <summary>
-    /// Create a new row from an existing dictionary and a specific comparer.
+    /// Creates a new row from an existing dictionary and a specific comparer.
     /// </summary>
-    /// <param name="items">Dictionary.</param>
-    /// <param name="comparer">Comparer.</param>
+    /// <param name="items">The source dictionary.</param>
+    /// <param name="comparer">The comparer to use for this row.</param>
     public Row(IDictionary<string, object?> items, StringComparer comparer)
         : base(items, comparer)
     {
     }
 
+    /// <summary>
+    /// A list of all columns in the row.
+    /// </summary>
     // ReSharper disable once MemberCanBePrivate.Global
     public IEnumerable<string> Columns
     {
@@ -64,10 +67,10 @@ public class Row : DynamicDictionary, IEquatable<Row>
     }
     
     /// <summary>
-    /// Crates a new row from an object.
+    /// Creates a new row from an object.
     /// </summary>
-    /// <param name="obj"></param>
-    /// <returns>Row.</returns>
+    /// <param name="obj">The source object for the row.</param>
+    /// <returns>A new <see cref="Row"/> object.</returns>
     public static Row FromObject(object obj)
     {
         var row = new Row();
@@ -88,10 +91,23 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return row;
     }
     
+    /// <summary>
+    /// Returns a clone of the row.
+    /// </summary>
+    /// <returns>A new row with the same items.</returns>
     public Row Clone() => new(this.items);
 
+    /// <summary>
+    /// Returns a <see cref="Key"/> object for all columns in the row.
+    /// </summary>
+    /// <returns>A <see cref="Key"/> object.</returns>
     public Key CreateKey() => this.CreateKey(this.Columns.ToArray());
 
+    /// <summary>
+    /// Creates a <see cref="Key"/> object for the specified columns.
+    /// </summary>
+    /// <param name="columns">The columns defining the key.</param>
+    /// <returns>A <see cref="Key"/> object.</returns>
     public Key CreateKey(params string[] columns)
     {
         var arr = new object?[columns.Length];
@@ -104,6 +120,7 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return new Key(arr);
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(this, obj))
@@ -119,8 +136,17 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return this.Equals(other);
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode() => this.CreateKey().GetHashCode();
     
+    /// <summary>
+    /// Determines whether the specified row is equal to the current row.
+    /// </summary>
+    /// <param name="other">The other <see cref="Row"/> object.</param>
+    /// <returns>
+    /// <c>true</c> if the specified object is equal to the current object,
+    /// otherwise, <c>false</c>.
+    /// </returns>
     public bool Equals(Row? other)
     {
         if (other is null)
@@ -160,6 +186,12 @@ public class Row : DynamicDictionary, IEquatable<Row>
 
         return true;
     }
+    
+    /// <summary>
+    /// Converts the row into an object.
+    /// </summary>
+    /// <param name="type">The type of the object to create.</param>
+    /// <returns>A new instance of the given type.</returns>
     public object ToObject(Type type)
     {
         var instance = Activator.CreateInstance(type)!;
@@ -183,8 +215,18 @@ public class Row : DynamicDictionary, IEquatable<Row>
         return instance;
     }
 
+    /// <summary>
+    /// Convert and cast the row into an object.
+    /// </summary>
+    /// <typeparam name="T">The type of the object.</typeparam>
+    /// <returns>A new object of type <c>T</c>.</returns>
     public T ToObject<T>() => (T)this.ToObject(typeof(T));
     
+    /// <summary>
+    /// Convert the row into a JSON string.
+    /// </summary>
+    /// <param name="options">The serialization options.</param>
+    /// <returns>A JSON string representing the row.</returns>
     public string ToJson(JsonSerializerOptions? options = null) =>
         JsonSerializer.Serialize(this, options);
     
@@ -200,16 +242,11 @@ public class Row : DynamicDictionary, IEquatable<Row>
                                           BindingFlags.Instance |
                                           BindingFlags.NonPublic;
         
-        properties = [];
-        foreach (var property in type.GetProperties(bindingFlags))
-        {
-            if (!property.CanRead || property.GetIndexParameters().Length > 0)
-            {
-                continue;
-            }
-
-            properties.Add(property);
-        }
+        properties = type
+            .GetProperties(bindingFlags)
+            .Where(x => x.CanRead)
+            .Where(x => x.GetIndexParameters().Length == 0)
+            .ToList();
 
         propertyCache[type] = properties;
         return properties;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Setl;
+namespace Setl.Pipelines;
 
 public abstract class AbstractPipelineExecutor : IPipelineExecutor
 {

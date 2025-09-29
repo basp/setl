@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Setl.Enumerables;
 
-namespace Setl;
+namespace Setl.Pipelines;
 
 public class NonCachedPipelineExecutor : AbstractPipelineExecutor
 {

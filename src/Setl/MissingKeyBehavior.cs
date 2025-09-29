@@ -1,24 +1,33 @@
 ﻿namespace Setl;
 
+/// <inheritdoc/>
 public class MissingKeyBehavior : IMissingKeyBehavior
 {
+    /// <summary>
+    /// Ignore the missing key and return <c>null</c>.
+    /// </summary>
     public static readonly IMissingKeyBehavior Ignore =
-        new MissingKeyBehavior((_, _) => { });
+        new MissingKeyBehavior((_, _) => null);
 
+    /// <summary>
+    /// Throw an exception, this is equivalent to default behavior.
+    /// </summary>
     public static readonly IMissingKeyBehavior Throw =
         new MissingKeyBehavior((key, _) =>
         {
-            var msg = $"Key '{key}' not found.";
+            var msg = $"The given key '{key}' was not present in the dictionary.";
             throw new KeyNotFoundException(msg);
         });
     
-    private readonly Action<string, DynamicDictionary> handler;
+    private readonly Func<string, DynamicDictionary, object?> handler;
 
-    private MissingKeyBehavior(Action<string, DynamicDictionary> handler)
+    private MissingKeyBehavior(
+        Func<string, DynamicDictionary, object?> handler)
     {
         this.handler = handler;
     }
     
-    public void Handle(string key, DynamicDictionary row) => 
-        this.handler(key, row);
+    /// <inheritdoc/>
+    public object? Handle(string key, DynamicDictionary dictionary) => 
+        this.handler(key, dictionary);
 }

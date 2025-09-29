@@ -1,4 +1,6 @@
-﻿namespace Setl;
+﻿using Setl.Pipelines;
+
+namespace Setl;
 
 public abstract class AbstractOperation : IOperation
 {

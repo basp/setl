@@ -1,4 +1,6 @@
-﻿namespace Setl;
+﻿using Setl.Pipelines;
+
+namespace Setl;
 
 internal class UninitializedPipelineExecutor : IPipelineExecutor
 {

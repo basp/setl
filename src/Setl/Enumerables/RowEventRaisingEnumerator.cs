@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Setl;
+namespace Setl.Enumerables;
 
 public class RowEventRaisingEnumerator
     : IEnumerable<Row>, IEnumerator<Row>

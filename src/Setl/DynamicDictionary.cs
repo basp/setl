@@ -41,8 +41,7 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
                 return value;
             }
 
-            this.MissingKeyBehavior.Handle(key, this);
-            return null;
+            return this.MissingKeyBehavior.Handle(key, this);
         }
         set => this.items[key] = 
             this.ValueConverter.Convert(value);
@@ -79,8 +78,7 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
         SetMemberBinder binder, 
         object? value)
     {
-        this.items[binder.Name] = 
-            this.ValueConverter.Convert(value);
+        this.items[binder.Name] = this.ValueConverter.Convert(value);
         return true;
     }
     

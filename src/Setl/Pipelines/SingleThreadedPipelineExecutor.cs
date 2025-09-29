@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Setl.Enumerables;
+using Setl.Pipelines;
 
 namespace Setl;
 

@@ -1,4 +1,6 @@
-﻿namespace Setl;
+﻿using Setl.Pipelines;
+
+namespace Setl;
 
 public interface IOperation : IDisposable
 {
