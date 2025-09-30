@@ -1,5 +1,6 @@
-﻿using Setl.Text.V2;
-using Setl.Text.V2.Fixed;
+﻿using Setl.Text;
+using Setl.Text.FieldConverters;
+using Setl.Text.Fixed;
 
 namespace Setl.Cmd.AowAio;
 
@@ -8,7 +9,7 @@ public static class Deserializers
     public static readonly ITextDeserializer BER =
         new TextDeserializerBuilder()
             .Field("Recordcode", 4)
-            .Field("Berichttype", 3)
+            .Field("Berichttype", 2)
             .Field("FunctieVersie", 3)
             .Field("NaamBericht", 35)
             .Field("CodeSectorLeverancier", 4)
@@ -19,10 +20,18 @@ public static class Deserializers
 
     public static readonly ITextDeserializer GEM =
         new TextDeserializerBuilder()
-            .Field("Recordcode", 4)
-            .Field("Gemeentecode", 4)
-            .Field("Verwerkingsjaar", 4)
-            .Field("Verwerkingsmaand", 2)
+            .Field("Recordcode", cfg => cfg
+                .Length(4)
+                .SetConverter(new TrimConverter()))
+            .Field("Gemeentecode", cfg => cfg
+                .Length(4)
+                .SetConverter(new TrimConverter()))
+            .Field("Verwerkingsjaar", cfg => cfg
+                .Length(4)
+                .SetConverter(new TrimConverter()))
+            .Field("Verwerkingsmaand", cfg => cfg
+                .Length(2)
+                .SetConverter(new TrimConverter()))
             .Build();
     
     public static readonly ITextDeserializer DTR =

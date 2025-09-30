@@ -1,8 +1,0 @@
-﻿namespace Setl.Text.V2;
-
-public interface ITextDeserializer
-{
-    Row Deserialize(string text);
-    
-    T Deserialize<T>(string text) where T : new();
-}

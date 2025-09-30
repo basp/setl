@@ -1,20 +1,19 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using Setl.Text.V2;
+﻿using System.Text.RegularExpressions;
+using Setl.Text;
 
 namespace Setl.Cmd.AowAio;
 
-public class Parser
+public static partial class Parser
 {
-    private const string IsBerichtregelPattern = @"^BER";
-    private const string IsGemeenteregelPattern = @"^GEM";
-    private const string IsDetailregelPattern = @"^DTR";
-    private const string IsTellingenregelPattern = @"^TPG";
+    private const string IsBerichtregelPattern = $"^{RecordCodes.BER}";
+    private const string IsGemeenteregelPattern = $"^{RecordCodes.GEM}";
+    private const string IsDetailregelPattern = $"^{RecordCodes.DTR}";
+    private const string IsTellingenregelPattern = $"^{RecordCodes.TPG}";
 
-    private static readonly Regex IsBerichtregel = new(Parser.IsBerichtregelPattern);
-    private static readonly Regex IsGemeenteregel = new(Parser.IsGemeenteregelPattern);
-    private static readonly Regex IsDetailregel = new(Parser.IsDetailregelPattern);
-    private static readonly Regex IsTellingenregel = new(Parser.IsTellingenregelPattern);
+    private static readonly Regex IsBerichtregel = Parser.IsBerichtregelRegex();
+    private static readonly Regex IsGemeenteregel = Parser.IsGemeenteregelRegex();
+    private static readonly Regex IsDetailregel = Parser.IsDetailregelRegex();
+    private static readonly Regex IsTellingenregel = Parser.IsTellingenregelRegex();
 
     private static readonly IDictionary<Regex, ITextDeserializer> deserializers =
         new Dictionary<Regex, ITextDeserializer>
@@ -40,4 +39,16 @@ public class Parser
 
         return false;
     }
+
+    [GeneratedRegex(Parser.IsBerichtregelPattern)]
+    private static partial Regex IsBerichtregelRegex();
+    
+    [GeneratedRegex(Parser.IsGemeenteregelPattern)]
+    private static partial Regex IsGemeenteregelRegex();
+    
+    [GeneratedRegex(Parser.IsDetailregelPattern)]
+    private static partial Regex IsDetailregelRegex();
+    
+    [GeneratedRegex(Parser.IsTellingenregelPattern)]
+    private static partial Regex IsTellingenregelRegex();
 }
