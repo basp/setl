@@ -1,6 +1,7 @@
 ﻿using Setl.Text;
+using Setl.Text.V1;
 
-namespace Setl.Cmd;
+namespace Setl.Cmd.Examples;
 
 internal static class SimpleExample
 {

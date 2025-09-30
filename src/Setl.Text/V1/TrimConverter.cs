@@ -1,6 +1,4 @@
-using Setl.Text;
-
-namespace Setl.Utils;
+namespace Setl.Text.V1;
 
 public class TrimConverter : IFieldConverter
 {

@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using Setl.Text;
-using Setl.Utils;
+using Setl.Text.V1;
 
-namespace Setl.Cmd;
+namespace Setl.Cmd.Examples;
 
 internal static partial class TextDeserializer2Example
 {
@@ -75,15 +75,15 @@ internal static partial class TextDeserializer2Example
         private static readonly Dictionary<Regex, ITextDeserializer> serializers = 
             new()
             {
-                [TextDeserializer2Example.BerRegex()] = berSerializer,
-                [TextDeserializer2Example.GemRegex()] = gemSerializer,
-                [TextDeserializer2Example.DtrRegex()] = dtrSerializer,
-                [TextDeserializer2Example.TpgRegex()] = tpgSerializer,
+                [TextDeserializer2Example.BerRegex()] = SVBWWBTextSerializer.berSerializer,
+                [TextDeserializer2Example.GemRegex()] = SVBWWBTextSerializer.gemSerializer,
+                [TextDeserializer2Example.DtrRegex()] = SVBWWBTextSerializer.dtrSerializer,
+                [TextDeserializer2Example.TpgRegex()] = SVBWWBTextSerializer.tpgSerializer,
             };
 
         public static Row Parse(string line)
         {
-            foreach (var serializer in serializers)
+            foreach (var serializer in SVBWWBTextSerializer.serializers)
             {
                 if (!serializer.Key.IsMatch(line))
                 {

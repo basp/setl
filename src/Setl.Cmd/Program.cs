@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using Setl.Cmd.Examples;
 
 var loggerFactory =
     LoggerFactory.Create(builder =>
@@ -14,5 +15,5 @@ var loggerFactory =
 using (loggerFactory)
 {
     // Setl.Cmd.SVBWWB65PlusProcessExample.Run(loggerFactory);
-    Setl.Cmd.Example3.Run(loggerFactory);
+    Example3.Run(loggerFactory);
 }

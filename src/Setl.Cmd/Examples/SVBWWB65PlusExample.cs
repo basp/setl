@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
-using Setl;
 
-namespace Setl.Cmd;
+namespace Setl.Cmd.Examples;
 
 internal static class SVBWWB65PlusExample
 {

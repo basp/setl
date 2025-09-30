@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Setl.Operations;
 
-namespace Setl.Cmd;
+namespace Setl.Cmd.Examples;
 
 internal class Example3
 {

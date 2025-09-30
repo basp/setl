@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using Setl;
 using Setl.Operations;
-using Setl.Pipelines;
 
-namespace Setl.Cmd;
+namespace Setl.Cmd.Examples;
 
 internal static class ETlProcessExample
 {

@@ -1,11 +1,11 @@
-﻿namespace Setl.Text;
+namespace Setl.Text.V1;
 
-public class PadRightConverter : IFieldConverter
+public class PadLeftConverter : IFieldConverter
 {
     private readonly int length;
     private readonly char padChar;
-    
-    public PadRightConverter(int length, char padChar)
+
+    public PadLeftConverter(int length, char padChar)
     {
         this.length = length;
         this.padChar = padChar;   
@@ -13,7 +13,7 @@ public class PadRightConverter : IFieldConverter
     
     public bool TryConvert(string value, out object? result)
     {
-        result = value.PadRight(this.length, this.padChar);
+        result = value.PadLeft(this.length, this.padChar);
         return true;   
     }
 }

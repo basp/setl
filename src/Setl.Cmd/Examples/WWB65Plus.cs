@@ -1,9 +1,8 @@
 ﻿using System.Text.RegularExpressions;
-using Setl;
 using Setl.Text;
-using Setl.Utils;
+using Setl.Text.V1;
 
-namespace Setl.Cmd;
+namespace Setl.Cmd.Examples;
 
 internal static class WWB65Plus
 {

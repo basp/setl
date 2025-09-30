@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Setl.Text;
+namespace Setl.Text.V1;
 
 public class SequentialTextDeserializerBuilder : ITextDeserializerBuilder
 {

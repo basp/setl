@@ -1,4 +1,4 @@
-﻿namespace Setl.Text;
+﻿namespace Setl.Text.V1;
 
 public class FailingFieldConverter : IFieldConverter
 {

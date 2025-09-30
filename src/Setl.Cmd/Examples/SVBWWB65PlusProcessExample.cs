@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using Setl;
 using Setl.Operations;
 
-namespace Setl.Cmd;
+namespace Setl.Cmd.Examples;
 
 internal static class SVBWWB65PlusProcessExample
 {
