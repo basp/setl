@@ -10,5 +10,5 @@ public class Int32Converter : IFieldConverter
     }
 
     public string FormatErrorMessage(string name, string value) =>
-        $"{name}: could not convert {value} to an Int32.";
+        $"{name}: could not convert {value} to an Int32";
 }

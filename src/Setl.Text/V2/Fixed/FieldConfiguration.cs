@@ -9,11 +9,10 @@ public class FieldConfiguration
     
     public int Length { get; init; }
 
-    public IFieldConverter Converter { get; set; } =
+    public IFieldConverter Converter { get; init; } =
         new NopFieldConverter();
+
+    public List<IFieldValidator> Validators { get; set;  } = [];
     
-    public IFieldValidator Validator { get; set; } =
-        new NopFieldValidator();
-    
-    public bool Skip { get; set; }
+    public bool Skip { get; init; }
 }

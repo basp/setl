@@ -4,11 +4,11 @@ public interface IFieldConfigurationBuilder
 {
     IFieldConfigurationBuilder Length(int length);
     
-    IFieldConfigurationBuilder Converter(IFieldConverter converter);
+    IFieldConfigurationBuilder SetConverter(IFieldConverter converter);
     
-    IFieldConfigurationBuilder Validator(IFieldValidator validator);
+    IFieldConfigurationBuilder AddValidator(IFieldValidator validator);
     
     IFieldConfigurationBuilder Skip(bool skip);
     
-    FieldConfiguration Build();
+    internal FieldConfiguration Build();
 }

@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 using Setl.Text.V2.FieldConverters;
-using Setl.Text.V2.FieldValidators;
 
 namespace Setl.Text.V2.Fixed;
 
@@ -9,15 +8,12 @@ public class TextDeserializerBuilder
 {
     private readonly List<FieldConfiguration> fields = []; 
     
-    public TextDeserializerBuilder Field(string name, int length, bool skip = false)
-    {
-        var builder = new FieldConfigurationBuilder(name);
-        builder.Length(length);
-        builder.Skip(skip);
-        var config = builder.Build();
-        this.fields.Add(config);
-        return this;
-    }
+    public TextDeserializerBuilder Field(string name, int length, bool skip = false) =>
+        this.Field(name, cfg =>
+        {
+            cfg.Length(length);
+            cfg.Skip(skip);       
+        });
     
     public TextDeserializerBuilder Field(
         string name,
@@ -30,7 +26,7 @@ public class TextDeserializerBuilder
         return this;
     }
     
-    public TextDeserializer Build()
+    public ITextDeserializer Build()
     {
         var regex = this.BuildRegex();
         return new TextDeserializer(regex, this.fields);
@@ -54,13 +50,13 @@ public class TextDeserializerBuilder
         var pattern = patternBuilder.ToString();
         return new Regex(pattern);        
     }
-    
+
     private class FieldConfigurationBuilder : IFieldConfigurationBuilder
     {
         private readonly string name;
         private int length;
         private bool skip;
-        private IFieldValidator validator = new NopFieldValidator();
+        private readonly List<IFieldValidator> validators = [];
         private IFieldConverter converter = new NopFieldConverter();
 
         public FieldConfigurationBuilder(string name)
@@ -80,15 +76,15 @@ public class TextDeserializerBuilder
             return this;
         }
 
-        public IFieldConfigurationBuilder Converter(IFieldConverter value)
+        public IFieldConfigurationBuilder SetConverter(IFieldConverter value)
         {
             this.converter = value;
             return this;
         }
 
-        public IFieldConfigurationBuilder Validator(IFieldValidator value)
+        public IFieldConfigurationBuilder AddValidator(IFieldValidator value)
         {
-            this.validator = value;
+            this.validators.Add(value);
             return this;
         }
 
@@ -100,7 +96,7 @@ public class TextDeserializerBuilder
                 Length = this.length,
                 Skip = this.skip,
                 Converter = this.converter,
-                Validator = this.validator,
+                Validators = this.validators,
             };
         }
     }

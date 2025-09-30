@@ -2,8 +2,9 @@
 
 namespace Setl.Text.V2.Fixed;
 
-public class TextDeserializer : ITextDeserializer
+internal class TextDeserializer : ITextDeserializer
 {
+    
     private readonly Regex regex;
     private readonly IList<FieldConfiguration> fields;
     
@@ -34,37 +35,63 @@ public class TextDeserializer : ITextDeserializer
         // structure of the rows coming into the ETL process stable at
         // runtime. This makes it easier to reason about the flow of the
         // data during development time.
-        
+
         foreach (var field in this.fields)
         {
-            var value = match.Groups[field.Name].Value;
-            if(field.Validator.Validate(value))
-            {
-                if (field.Converter.TryConvert(value, out var converted))
-                {
-                    // Successfully dealt with this field.
-                    row.Add(field.Name, converted);
-                    continue;
-                }
+            // We still to preserve the structure of the row, even though
+            // some validations and/or conversions might fail.
+            row.Add(field.Name, string.Empty);
 
-                // Failed to convert.
-                conversionErrors.Add(
-                    field.Converter.FormatErrorMessage(field.Name, value));
-                // Even though we failed to convert, we still want the field.
-                row.Add(field.Name, string.Empty);
+            // Grab the matched value for this field.
+            var value = match.Groups[field.Name].Value;
+
+            // We assume that the field is valid by default.
+            var isValid = true;
+            
+            // Execute all registered validators for this field.
+            foreach (var validator in field.Validators)
+            {
+                if (!validator.Validate(value))
+                {
+                    // Failed to validate.
+                    validationErrors.Add(
+                        validator.FormatErrorMessage(
+                            field.Name,
+                            value));
+
+                    // Stop after the first validation error for this field
+                    // and mark this field as invalid. This will prevent
+                    // any conversion shenanigans.
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (!isValid)
+            {
+                // We got at least one validation error for this field,
+                // so don't bother to convert it. Just continue with the
+                // next field.
                 continue;
             }
-        
-            // Failed to validate.
-            validationErrors.Add(
-                field.Validator.FormatErrorMessage(field.Name, value));
-            // Again, we still want the field.
-            row.Add(field.Name, string.Empty);
+
+            if (field.Converter.TryConvert(value, out var converted))
+            {
+                // Successfully dealt with this field, carry on with the next.
+                row[field.Name] = converted;
+                continue;
+            }
+
+            // Failed to convert.
+            conversionErrors.Add(
+                field.Converter.FormatErrorMessage(
+                    field.Name,
+                    value));
         }
-        
+
         // For now, we'll just send any errors along inside the row.
-        row["__VALIDATION_ERRORS"] = validationErrors;
-        row["__CONVERSION_ERRORS"] = conversionErrors;
+        row[WellKnownKeys.ValidationErrorsKey] = validationErrors;
+        row[WellKnownKeys.ConversionErrorsKey] = conversionErrors;
         return row;
     }
 
