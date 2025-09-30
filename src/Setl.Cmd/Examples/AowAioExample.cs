@@ -23,7 +23,7 @@ public class AowAioExample
         using var stream = File.OpenRead(path);
         using var reader = new StreamReader(stream);
         while (!reader.EndOfStream)
-        {g
+        {
             var line = reader.ReadLine();
             if (string.IsNullOrWhiteSpace(line))
             {
