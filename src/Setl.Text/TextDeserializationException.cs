@@ -1,4 +1,4 @@
-﻿namespace Setl.Utils;
+﻿namespace Setl.Text;
 
 public class TextDeserializationException : Exception
 {

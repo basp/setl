@@ -1,13 +1,14 @@
 ﻿using System.Text.RegularExpressions;
 using Setl;
+using Setl.Text;
 using Setl.Utils;
 
 namespace Setl.Cmd;
 
 internal static class WWB65Plus
 {
-    private static readonly ITextSerializer berichtSerializer =
-        new SequentialTextSerializerBuilder()
+    private static readonly ITextDeserializer berichtSerializer =
+        new SequentialTextDeserializerBuilder()
             .Field("Recordcode", 4)
             .Field("Berichttype", 3)
             .Field("FunctieVersie", 3)
@@ -18,16 +19,16 @@ internal static class WWB65Plus
             .Field("ReferentieLevering", 10)
             .Build();
 
-    private static readonly ITextSerializer gemeenteSerializer =
-        new SequentialTextSerializerBuilder()
+    private static readonly ITextDeserializer gemeenteSerializer =
+        new SequentialTextDeserializerBuilder()
             .Field("Recordcode", 4)
             .Field("Gemeentecode", 4)
             .Field("Verwerkingsjaar", 4)
             .Field("Verwerkingsmaand", 2)
             .Build();
 
-    private static readonly ITextSerializer detailSerializer =
-        new SequentialTextSerializerBuilder()
+    private static readonly ITextDeserializer detailSerializer =
+        new SequentialTextDeserializerBuilder()
             .Field("Recordcode", 4)
             .Field("SofinummerHp", 9)
             .Field("AchternaamHp", 25)
@@ -56,8 +57,8 @@ internal static class WWB65Plus
             .Field("WWBNorm", 2)
             .Build();
 
-    private static readonly ITextSerializer tellingenSerializer =
-        new SequentialTextSerializerBuilder()
+    private static readonly ITextDeserializer tellingenSerializer =
+        new SequentialTextDeserializerBuilder()
             .Field("Recordcode", 4)
             .Field("Gemeentecode", 4)
             .Field("TotaalAantalGerechtigden", 11)

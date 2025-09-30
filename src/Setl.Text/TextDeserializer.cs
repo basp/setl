@@ -1,13 +1,13 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Setl.Utils;
+namespace Setl.Text;
 
-public class TextSerializer : ITextSerializer
+public class TextDeserializer : ITextDeserializer
 {
     private readonly Regex regex;
     private readonly string[] fields;
     
-    internal TextSerializer(
+    internal TextDeserializer(
         Regex regex,
         string[] fields)
     {

@@ -1,4 +1,4 @@
-﻿using Setl.Utils;
+﻿using Setl.Text;
 
 namespace Setl.Cmd;
 
@@ -6,7 +6,7 @@ internal static class SimpleExample
 {
     public static void Run()
     {
-        var builder = new SequentialTextSerializerBuilder()
+        var builder = new SequentialTextDeserializerBuilder()
             .Field("foo", 3)
             .Field("bar", 3)
             .Skip(3)

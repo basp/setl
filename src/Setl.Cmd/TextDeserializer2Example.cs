@@ -1,14 +1,15 @@
 ﻿using System.Text.RegularExpressions;
+using Setl.Text;
 using Setl.Utils;
 
 namespace Setl.Cmd;
 
-internal static partial class TextSerializer2Example
+internal static partial class TextDeserializer2Example
 {
     private static class SVBWWBTextSerializer
     {
-        private static readonly ITextSerializer berSerializer = 
-            new TextSerializer2Builder()
+        private static readonly ITextDeserializer berSerializer = 
+            new TextDeserializer2Builder()
                 .Field(f =>
                 {
                     f.Name = "Recordcode";
@@ -23,8 +24,8 @@ internal static partial class TextSerializer2Example
                 })
                 .Build();
     
-        private static readonly ITextSerializer gemSerializer =
-            new TextSerializer2Builder()
+        private static readonly ITextDeserializer gemSerializer =
+            new TextDeserializer2Builder()
                 .Field(f =>
                 {
                     f.Name = "Recordcode";
@@ -39,8 +40,8 @@ internal static partial class TextSerializer2Example
                 })
                 .Build();
     
-        private static readonly ITextSerializer dtrSerializer =
-            new TextSerializer2Builder()
+        private static readonly ITextDeserializer dtrSerializer =
+            new TextDeserializer2Builder()
                 .Field(f =>
                 {
                     f.Name = "Recordcode";
@@ -55,8 +56,8 @@ internal static partial class TextSerializer2Example
                 })
                 .Build();
     
-        private static readonly ITextSerializer tpgSerializer =
-            new TextSerializer2Builder()
+        private static readonly ITextDeserializer tpgSerializer =
+            new TextDeserializer2Builder()
                 .Field(f =>
                 {
                     f.Name = "Recordcode";
@@ -71,13 +72,13 @@ internal static partial class TextSerializer2Example
                 })
                 .Build();
         
-        private static readonly Dictionary<Regex, ITextSerializer> serializers = 
+        private static readonly Dictionary<Regex, ITextDeserializer> serializers = 
             new()
             {
-                [TextSerializer2Example.BerRegex()] = berSerializer,
-                [TextSerializer2Example.GemRegex()] = gemSerializer,
-                [TextSerializer2Example.DtrRegex()] = dtrSerializer,
-                [TextSerializer2Example.TpgRegex()] = tpgSerializer,
+                [TextDeserializer2Example.BerRegex()] = berSerializer,
+                [TextDeserializer2Example.GemRegex()] = gemSerializer,
+                [TextDeserializer2Example.DtrRegex()] = dtrSerializer,
+                [TextDeserializer2Example.TpgRegex()] = tpgSerializer,
             };
 
         public static Row Parse(string line)

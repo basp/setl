@@ -1,20 +1,21 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
+using Setl.Text;
 
 namespace Setl.Utils;
 
-public class TextSerializer2Builder
+public class TextDeserializer2Builder
 {
     private readonly List<TextField> fields = [];
 
-    public TextSerializer2Builder Field(string name, int length) =>
+    public TextDeserializer2Builder Field(string name, int length) =>
         this.Field(field =>
         {
             field.Name = name;
             field.Length = length;
         });
     
-    public TextSerializer2Builder Skip(int length)
+    public TextDeserializer2Builder Skip(int length)
     {
         var name = this.fields.Count.ToString();
         return this.Field(f =>
@@ -25,7 +26,7 @@ public class TextSerializer2Builder
         });
     }
     
-    public TextSerializer2Builder Field(Action<TextField> configure)
+    public TextDeserializer2Builder Field(Action<TextField> configure)
     {
         var field = new TextField();
         configure(field);
@@ -33,7 +34,7 @@ public class TextSerializer2Builder
         return this;
     }
 
-    public TextSerializer2 Build()
+    public TextDeserializer2 Build()
     {
         var patternBuilder = new StringBuilder();
         foreach (var field in this.fields)
@@ -50,6 +51,6 @@ public class TextSerializer2Builder
         
         var pattern = patternBuilder.ToString();
         var regex = new Regex(pattern);
-        return new TextSerializer2(regex, this.fields);
+        return new TextDeserializer2(regex, this.fields);
     }
 }

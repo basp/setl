@@ -1,6 +1,6 @@
-﻿namespace Setl.Utils;
+﻿namespace Setl.Text;
 
-public interface ITextSerializer
+public interface ITextDeserializer
 {
     Row Deserialize(string text);
 
