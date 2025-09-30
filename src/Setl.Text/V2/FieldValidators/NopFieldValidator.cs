@@ -1,4 +1,4 @@
-﻿namespace Setl.Text.V2;
+﻿namespace Setl.Text.V2.FieldValidators;
 
 public class NopFieldValidator : IFieldValidator
 {

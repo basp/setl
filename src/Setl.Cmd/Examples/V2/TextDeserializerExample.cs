@@ -31,19 +31,24 @@ public static class TextDeserializerExample
         var builder = new TextDeserializerBuilder();
         var deserializer = builder
             .Field("foo", cfg => cfg
-                .SetLength(5)
-                .SetConverter(faultingConverter))
+                .Length(5)
+                .Converter(new Int32Converter()))
             .Field("bar", cfg => cfg
-                .SetLength(5)
-                .SetConverter(faultingConverter))
+                .Length(5)
+                .Converter(faultingConverter))
             .Field("zoz", cfg => cfg
-                .SetLength(5)
-                .SetValidator(faultingValidator)
-                .SetConverter(trimConverter))
+                .Length(5)
+                .Validator(faultingValidator)
+                .Converter(trimConverter))
             .Field("qux", 3)
+            .Field("_1", 2, skip: true)
+            .Field("date", cfg => cfg
+                .Length(8)
+                .Validator(new RegexValidator(@"^[0-9]{8}$"))
+                .Converter(new DateTimeConverter("yyyyMMdd")))
             .Build();
         
-        const string text = "123  ABCD 56789XYZ";
+        const string text = "123  ABCD 56789XYZ__19800714";
         var row = deserializer.Deserialize(text);
         Console.WriteLine(row.ToJson());
     }

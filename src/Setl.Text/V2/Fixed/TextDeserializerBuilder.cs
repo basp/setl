@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
+using Setl.Text.V2.FieldConverters;
+using Setl.Text.V2.FieldValidators;
 
 namespace Setl.Text.V2.Fixed;
 
@@ -7,10 +9,11 @@ public class TextDeserializerBuilder
 {
     private readonly List<FieldConfiguration> fields = []; 
     
-    public TextDeserializerBuilder Field(string name, int length)
+    public TextDeserializerBuilder Field(string name, int length, bool skip = false)
     {
         var builder = new FieldConfigurationBuilder(name);
-        builder.SetLength(length);
+        builder.Length(length);
+        builder.Skip(skip);
         var config = builder.Build();
         this.fields.Add(config);
         return this;
@@ -56,6 +59,7 @@ public class TextDeserializerBuilder
     {
         private readonly string name;
         private int length;
+        private bool skip;
         private IFieldValidator validator = new NopFieldValidator();
         private IFieldConverter converter = new NopFieldConverter();
 
@@ -64,19 +68,25 @@ public class TextDeserializerBuilder
             this.name = name;
         }
         
-        public IFieldConfigurationBuilder SetLength(int value)
+        public IFieldConfigurationBuilder Length(int value)
         {
             this.length = value;
             return this;
         }
+        
+        public IFieldConfigurationBuilder Skip(bool value)
+        {
+            this.skip = value;
+            return this;
+        }
 
-        public IFieldConfigurationBuilder SetConverter(IFieldConverter value)
+        public IFieldConfigurationBuilder Converter(IFieldConverter value)
         {
             this.converter = value;
             return this;
         }
 
-        public IFieldConfigurationBuilder SetValidator(IFieldValidator value)
+        public IFieldConfigurationBuilder Validator(IFieldValidator value)
         {
             this.validator = value;
             return this;
@@ -88,6 +98,7 @@ public class TextDeserializerBuilder
             {
                 Name = this.name,
                 Length = this.length,
+                Skip = this.skip,
                 Converter = this.converter,
                 Validator = this.validator,
             };

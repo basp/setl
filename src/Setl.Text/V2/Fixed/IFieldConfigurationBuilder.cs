@@ -2,11 +2,13 @@
 
 public interface IFieldConfigurationBuilder
 {
-    IFieldConfigurationBuilder SetLength(int length);
+    IFieldConfigurationBuilder Length(int length);
     
-    IFieldConfigurationBuilder SetConverter(IFieldConverter converter);
+    IFieldConfigurationBuilder Converter(IFieldConverter converter);
     
-    IFieldConfigurationBuilder SetValidator(IFieldValidator validator);
+    IFieldConfigurationBuilder Validator(IFieldValidator validator);
+    
+    IFieldConfigurationBuilder Skip(bool skip);
     
     FieldConfiguration Build();
 }

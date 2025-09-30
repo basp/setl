@@ -1,4 +1,7 @@
-﻿namespace Setl.Text.V2.Fixed;
+﻿using Setl.Text.V2.FieldConverters;
+using Setl.Text.V2.FieldValidators;
+
+namespace Setl.Text.V2.Fixed;
 
 public class FieldConfiguration
 {
