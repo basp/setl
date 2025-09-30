@@ -20,18 +20,10 @@ public static class Deserializers
 
     public static readonly ITextDeserializer GEM =
         new TextDeserializerBuilder()
-            .Field("Recordcode", cfg => cfg
-                .Length(4)
-                .SetConverter(new TrimConverter()))
-            .Field("Gemeentecode", cfg => cfg
-                .Length(4)
-                .SetConverter(new TrimConverter()))
-            .Field("Verwerkingsjaar", cfg => cfg
-                .Length(4)
-                .SetConverter(new TrimConverter()))
-            .Field("Verwerkingsmaand", cfg => cfg
-                .Length(2)
-                .SetConverter(new TrimConverter()))
+            .Field("Recordcode", 4)
+            .Field("Gemeentecode", 4)
+            .Field("Verwerkingsjaar", 4)
+            .Field("Verwerkingsmaand", 2)
             .Build();
     
     public static readonly ITextDeserializer DTR =
