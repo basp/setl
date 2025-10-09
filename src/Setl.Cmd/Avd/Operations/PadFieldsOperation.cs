@@ -23,7 +23,7 @@ public class PadFieldsOperation : AbstractOperation
         
         foreach (var row in rows)
         {
-            var originalBsn = row.GetString(FieldNames.Bsn);
+            var originalBsn = row.GetString(FieldNames.Bsn, string.Empty);
             if (!string.IsNullOrEmpty(originalBsn) && originalBsn.Length < BSN_LENGTH)
             {
                 bsn = originalBsn.PadLeft(BSN_LENGTH, '0');
@@ -35,7 +35,7 @@ public class PadFieldsOperation : AbstractOperation
                     row.GetString(FieldNames.Source));
             }
             
-            var originalGemeentecode = row.GetString(FieldNames.Gemeentecode);
+            var originalGemeentecode = row.GetString(FieldNames.Gemeentecode, string.Empty);
             if (!string.IsNullOrEmpty(originalGemeentecode) && originalGemeentecode.Length < GEMEENTECODE_LENGTH)
             {
                 gemeentecode = originalGemeentecode.PadLeft(GEMEENTECODE_LENGTH, '0');

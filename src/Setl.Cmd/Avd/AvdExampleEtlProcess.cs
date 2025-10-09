@@ -27,7 +27,7 @@ public class AvdExampleEtlProcess : EtlProcess
         var parser = AvdExampleEtlProcess.CreateParser();
         
         var extract = new ExtractAvdRecordsOperation(this.reader, parser, this.logger);
-        var write = new WriteAvdRecordsOperation(this.logger);
+        var load = new WriteAvdRecordsOperation(this.logger);
         var pad = new PadFieldsOperation(this.logger)
         {
             OnPaddingAdded = (index, field, orig, dest, source) =>
@@ -47,7 +47,7 @@ public class AvdExampleEtlProcess : EtlProcess
             OnInvalidBsn = (index, bsn, source) =>
             {
                 this.logger.LogWarning(
-                    "Invalid BSN (11-proef) {Bsn} in {Source} (index {Index})",
+                    "Invalid BSN (11-proef) '{Bsn}' in {Source} (index {Index})",
                     bsn,
                     source,
                     index);
@@ -56,7 +56,8 @@ public class AvdExampleEtlProcess : EtlProcess
 
         var validateGemeente = new ValidateGemeenteOperation(this.logger)
         {
-            OnInvalidGemeentecode = (index, gemeentecode, source) =>
+            OnInvalidGemeentecode = (
+                index, gemeentecode, source) =>
             {
                 this.logger.LogWarning(
                     "Invalid Gemeentecode {Gemeentecode} in {Source} (index {Index})",
@@ -70,7 +71,7 @@ public class AvdExampleEtlProcess : EtlProcess
         this.Register(pad);
         this.Register(validateBsn);
         this.Register(validateGemeente);
-        this.Register(write);
+        this.Register(load);
     }
 
     private static Parser CreateParser() =>
