@@ -17,7 +17,7 @@ public class ValidateGemeenteOperation : AbstractOperation
         foreach (var row in rows)
         {
             var gemeentecode = row.GetString(FieldNames.Gemeentecode);
-            if (!int.TryParse(gemeentecode, out var _))
+            if (!int.TryParse(gemeentecode, out _))
             {
                 this.OnInvalidGemeentecode(
                     row.GetInt32(FieldNames.Index), 

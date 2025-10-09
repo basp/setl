@@ -21,6 +21,6 @@ public class ExtractAvdRecordsOperation : AbstractOperation
     public override IEnumerable<Row> Execute(IEnumerable<Row> rows) =>
         this.parser
             .Parse(this.reader)
-            .Where(x => !x.IsFlagged())
-            .Where(x => x.IsLineType(LineType.Record));
+            .Where(x => x.IsLineType(LineType.Record))
+            .Where(x => !x.IsFlagged());
 }
