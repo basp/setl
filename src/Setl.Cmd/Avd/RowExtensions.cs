@@ -5,15 +5,10 @@ public static class RowExtensions
     public static int GetInt32(
         this Row self,
         string field,
-        int missing)
-    {
-        if (self.TryGetValue(field, out var value))
-        {
-            return Convert.ToInt32(value);
-        }
-        
-        return missing;
-    }
+        int missing) =>
+        self.TryGetValue(field, out var value) 
+            ? Convert.ToInt32(value) 
+            : missing;
 
     public static string GetString(
         this Row self,
