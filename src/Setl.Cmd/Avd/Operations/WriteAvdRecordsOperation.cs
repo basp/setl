@@ -13,7 +13,7 @@ public class WriteAvdRecordsOperation : AbstractOperation
     {
         foreach (var row in rows)
         {
-            // Console.WriteLine(row.ToJson());
+            Console.WriteLine(row.ToJson());
         }
 
         yield break;

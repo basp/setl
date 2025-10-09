@@ -10,7 +10,7 @@ var loggerFactory =
                 cfg.SingleLine = true;
                 cfg.ColorBehavior = LoggerColorBehavior.Enabled;
             })
-            .SetMinimumLevel(LogLevel.Debug));
+            .SetMinimumLevel(LogLevel.Information));
 
 using (loggerFactory)
 {

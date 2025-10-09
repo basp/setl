@@ -95,7 +95,7 @@ public partial class Parser
     private static class MatchPatterns
     {
         public const string Header = @"^(?<Field0>BSN);(?<Field1>Gemeentecode)$";
-        public const string Record = @"^(?<Bsn>\d{0,9}.);(?<Gemeentecode>\d{0,4})$";
+        public const string Record = @"^(?<Bsn>\d{0,9}.)?;(?<Gemeentecode>\d{0,4})$";
     }
 
     [GeneratedRegex(MatchPatterns.Record)]
