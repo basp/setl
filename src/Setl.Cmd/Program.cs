@@ -10,12 +10,13 @@ var loggerFactory =
                 cfg.SingleLine = true;
                 cfg.ColorBehavior = LoggerColorBehavior.Enabled;
             })
-            .SetMinimumLevel(LogLevel.Trace));
+            .SetMinimumLevel(LogLevel.Debug));
 
 using (loggerFactory)
 {
+    AvdExample.Run(loggerFactory);
     // Setl.Cmd.SVBWWB65PlusProcessExample.Run(loggerFactory);
     // Example3.Run(loggerFactory);
     // Setl.Cmd.Examples.V2.TextDeserializerExample.Run();
-    AowAioExample.Run();
+    // AowAioExample.Run();
 }

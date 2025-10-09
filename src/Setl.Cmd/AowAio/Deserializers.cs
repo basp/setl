@@ -11,7 +11,9 @@ public static class Deserializers
             .Field("Recordcode", 4)
             .Field("Berichttype", 2)
             .Field("FunctieVersie", 3)
-            .Field("NaamBericht", 35)
+            // .Field("NaamBericht", 35)
+            .Field("NaamBericht", cfg => cfg
+                .Length(35))
             .Field("CodeSectorLeverancier", 4)
             .Field("CodeSectorAanvrager", 4)
             .Field("DatumAanmaakBericht", 8)
