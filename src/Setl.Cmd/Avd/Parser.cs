@@ -18,6 +18,7 @@ public partial class Parser
             Row row;
             if (index == 0)
             {
+                // We need to match the first row as a header.
                 if (!TryMatchHeader(line, out row))
                 {
                     this.OnHeaderParseError(index, line);
@@ -26,6 +27,7 @@ public partial class Parser
             }
             else
             {
+                // All other rows are subject records.
                 if (!TryMatchRecord(line, out row))
                 {
                     this.OnRecordParseError(index, line);
