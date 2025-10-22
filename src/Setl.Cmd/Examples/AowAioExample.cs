@@ -30,7 +30,7 @@ public class AowAioExample
                 continue;
             }
 
-            if (AowAio.Parser.TryParse(line, out var row))
+            if (Setl.Cmd.AowAio.Parser.TryParse(line, out var row))
             {
                 yield return row;
             }

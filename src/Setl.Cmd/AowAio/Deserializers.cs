@@ -1,5 +1,6 @@
 ﻿using Setl.Text;
 using Setl.Text.FieldConverters;
+using Setl.Text.FieldValidators;
 using Setl.Text.Fixed;
 
 namespace Setl.Cmd.AowAio;
@@ -26,6 +27,12 @@ public static class Deserializers
             .Field("Gemeentecode", 4)
             .Field("Verwerkingsjaar", 4)
             .Field("Verwerkingsmaand", 2)
+            .Field("foo", cfg =>
+            {
+                cfg.AddValidator(new FieldValidator()
+                {
+                });
+            })
             .Build();
     
     public static readonly ITextDeserializer DTR =

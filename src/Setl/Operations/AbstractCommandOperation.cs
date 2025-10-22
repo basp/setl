@@ -1,6 +1,15 @@
-﻿namespace Setl.Operations;
+﻿using Microsoft.Extensions.Logging;
 
-public class AbstractCommandOperation
+namespace Setl.Operations;
+
+public abstract class AbstractCommandOperation : AbstractOperation
 {
-    
+    public AbstractCommandOperation(ILogger logger) : base(logger)
+    {
+    }
+
+    public override IEnumerable<Row> Execute(IEnumerable<Row> rows)
+    {
+        throw new NotImplementedException();
+    }
 }
