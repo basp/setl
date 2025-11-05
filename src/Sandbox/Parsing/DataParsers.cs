@@ -1,37 +1,29 @@
-﻿using Setl.Text;
-using Setl.Text.FieldConverters;
-using Setl.Text.FieldValidators;
-using Setl.Text.Fixed;
+﻿using Sandbox.Text;
 
-namespace Setl.Cmd.AowAio;
+namespace Sandbox.Parsing;
 
-public static class Deserializers
+internal static class DataParsers
 {
-    public static readonly ITextDeserializer BER =
-        new TextDeserializerBuilder()
-            .Field("Recordcode", 4)
-            .Field("Berichttype", 2)
+    internal static readonly IFixedWidthParser BerichtdataParser =
+        new FixedWidthParserBuilder()
+            .Field("Berichttype", 3)
             .Field("FunctieVersie", 3)
-            // .Field("NaamBericht", 35)
-            .Field("NaamBericht", cfg => cfg
-                .Length(35))
+            .Field("NaamBericht", 35)
             .Field("CodeSectorLeverancier", 4)
             .Field("CodeSectorAanvrager", 4)
             .Field("DatumAanmaakBericht", 8)
             .Field("ReferentieLevering", 10)
             .Build();
-
-    public static readonly ITextDeserializer GEM =
-        new TextDeserializerBuilder()
-            .Field("Recordcode", 4)
+    
+    internal static readonly IFixedWidthParser GemeentedataParser =
+        new FixedWidthParserBuilder()
             .Field("Gemeentecode", 4)
             .Field("Verwerkingsjaar", 4)
             .Field("Verwerkingsmaand", 2)
             .Build();
-    
-    public static readonly ITextDeserializer DTR =
-        new TextDeserializerBuilder()
-            .Field("Recordcode", 4)
+
+    internal static readonly IFixedWidthParser DetaildataParser =
+        new FixedWidthParserBuilder()
             .Field("SofinummerHp", 9)
             .Field("AchternaamHp", 25)
             .Field("VoorlettersHp", 6)
@@ -58,10 +50,9 @@ public static class Deserializers
             .Field("EinddatumRecht", 8)
             .Field("WWBNorm", 2)
             .Build();
-    
-    public static readonly ITextDeserializer TPG =
-        new TextDeserializerBuilder()
-            .Field("Recordcode", 4)
+
+    internal static readonly IFixedWidthParser TellingdataParser =
+        new FixedWidthParserBuilder()
             .Field("Gemeentecode", 4)
             .Field("TotaalAantalGerechtigden", 11)
             .Field("TotaalAantalHuishoudens", 11)
