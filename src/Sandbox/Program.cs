@@ -8,7 +8,7 @@ public static class Program
 {
     public static void Main(params string[] args)
     {
-        const string path = @"d:/temp/SVB/SVBWWB65PLUS00002_3.txt";
+        const string path = @"d:/temp/SVB/SVBWWB65PLUS00002_goed.dat.txt";
         var preprocessor = new LineParser
         {
             OnInvalidLine = (i, s) =>
@@ -23,10 +23,8 @@ public static class Program
             ["TPG"] = DataParsers.TellingdataParser,       
         };
 
-        // This variation will cache all the errors in memory
-        // so they can be queried later.
-        var validationErrorHandlers = 
-            new AccumulatingValidationErrorHandlers();
+        var validationErrorHandlers = new AccumulatingValidationErrorHandlers();
+        // var validationErrorHandlers = new ThrowingValidationErrorHandlers();
 
         var validators = new Dictionary<string, DataValidator>
         {
@@ -35,40 +33,50 @@ public static class Program
             ["DTR"] = new DetailValidator(validationErrorHandlers),
             ["TPG"] = new TellingenValidator(validationErrorHandlers),
         };
+
+        var evaluators = new Dictionary<string, IDataEvaluator>
+        {
+            ["BER"] = Evaluators.BerichtEvaluator,
+            ["GEM"] = Evaluators.GemeenteEvaluator,
+            ["DTR"] = Evaluators.DetailEvaluator,
+            ["TPG"] = Evaluators.TellingdataEvaluator,
+        };
         
         var lines = preprocessor.Parse(File.ReadLines(path));
         foreach (var line in lines)
         {
             if (!dataParsers.TryGetValue(line.Code, out var parser))
             {
-                // No parser for this code.
+                Console.WriteLine($"No parser for [{line.Code}]");
                 continue;
             }
             
             if (!validators.TryGetValue(line.Code, out var validator))
             {
-                // No validator for this code.
+                Console.WriteLine($"No validator for [{line.Code}]");
                 continue;
             }
 
             if (!parser.TryParse(line.Data, out var data))
             {
-                // Unable to parse, according to the parser.
+                Console.WriteLine($"Cannot parse [{line.Source}]");
                 continue;
             }
 
             if (!validator.Validate(line, data))
             {
-                // Text values do not conform to specification.
+                Console.WriteLine($"Invalid data [{line.Source}]");
                 continue;
             }
             
-            var header = $"-- [{line.Code}] ".PadRight(20, '-');
-            Console.WriteLine(header);
-            foreach (var field in data)
+            if (!evaluators.TryGetValue(line.Code, out var evaluator))
             {
-                Console.WriteLine($"{field.Key}: [{field.Value}]");
+                Console.WriteLine($"No evaluator for [{line.Code}]");
+                continue;
             }
+            
+            var row = evaluator.Evaluate(data);
+            Console.WriteLine(row.ToJson());
         }
 
         foreach (var error in validationErrorHandlers.Errors)

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 
-namespace Sandbox;
+namespace Sandbox.Support;
 
 public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
 {
@@ -56,7 +56,7 @@ public class DynamicDictionary : DynamicObject, IDictionary<string, object?>
     public ICollection<object?> Values => this.items.Values;
 
     public IMissingKeyBehavior MissingKeyBehavior { get; set; } =
-        Sandbox.MissingKeyBehavior.Ignore;
+        Support.MissingKeyBehavior.Ignore;
 
     public IDynamicValueConverter ValueConverter { get; init; } =
         DynamicValueConverter.None;

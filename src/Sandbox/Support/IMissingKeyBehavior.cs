@@ -1,4 +1,4 @@
-﻿namespace Sandbox;
+﻿namespace Sandbox.Support;
 
 /// <summary>
 /// Defines the behavior on how a <see cref="DynamicDictionary"/> should handle

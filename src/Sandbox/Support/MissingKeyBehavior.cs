@@ -1,4 +1,4 @@
-﻿namespace Sandbox;
+﻿namespace Sandbox.Support;
 
 /// <inheritdoc/>
 public class MissingKeyBehavior : IMissingKeyBehavior
