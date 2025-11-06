@@ -38,7 +38,7 @@ public static class Program
 
         var evaluators = new Dictionary<string, IDataEvaluator>
         {
-            ["BER"] = DataEvaluators.BerichtEvaluator,
+            ["BER"] = DataEvaluatorFactory.CreateBerichtEvaluator(),
             ["GEM"] = DataEvaluators.GemeenteEvaluator,
             ["DTR"] = DataEvaluators.DetailEvaluator,
             ["TPG"] = DataEvaluators.TellingdataEvaluator,

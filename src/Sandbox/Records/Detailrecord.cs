@@ -3,12 +3,7 @@ namespace Sandbox.Records;
 
 internal class Detailrecord : AowAioRecord
 {
-    public Detailrecord(string gemeentecode)
-    {
-        this.Gemeentecode = gemeentecode;
-    }
-    
-    public string Gemeentecode { get; }
+    public string Gemeentecode { get; set;  }
     
     public string SofinummerHp { get; set; }
 
@@ -17,6 +12,4 @@ internal class Detailrecord : AowAioRecord
     public string VoorlettersHp { get; set; }
 
     public string VoorvoegselHp { get; set; }
-    
-    
 }

@@ -1,16 +1,26 @@
-﻿using Sandbox.Support;
+﻿using System.Runtime.CompilerServices;
+using Sandbox.Support;
 using Sandbox.Text;
 
 namespace Sandbox;
 
 public class MappingDataEvaluator : IDataEvaluator
 {
-    private readonly Dictionary<string, Func<string, object?>> mappings;
-
+    private readonly Dictionary<string, Func<string, object?>> map;
+    private readonly Dictionary<string, Func<object?>> append;
+    
     public MappingDataEvaluator(
-        Dictionary<string, Func<string, object?>> mappings)
+        Dictionary<string, Func<string, object?>> map)
+        : this(map, new Dictionary<string, Func<object?>>())
     {
-        this.mappings = mappings;   
+    }
+    
+    public MappingDataEvaluator(
+        Dictionary<string, Func<string, object?>> map,
+        Dictionary<string, Func<object?>> append)
+    {
+        this.map = map;
+        this.append = append;
     }
     
     public Row Evaluate(Dictionary<string, string> data)
@@ -18,7 +28,7 @@ public class MappingDataEvaluator : IDataEvaluator
         var row = new Row();
         foreach (var field in data)
         {
-            if (this.mappings.TryGetValue(
+            if (this.map.TryGetValue(
                     field.Key, 
                     out var mapping))
             {
@@ -29,6 +39,11 @@ public class MappingDataEvaluator : IDataEvaluator
             row[field.Key] = field.Value;
         }
 
+        foreach (var field in this.append)
+        {
+            row[field.Key] = field.Value();
+        }
+        
         return row;
     }
 
