@@ -1,6 +1,6 @@
 ﻿namespace Sandbox;
 
-internal static class Evaluators
+internal static class DataEvaluators
 {
     public static readonly IDataEvaluator BerichtEvaluator =
         new MappingDataEvaluator(
@@ -41,13 +41,19 @@ internal static class Evaluators
                 [KnownFields.Huisnummer] =
                     s => int.Parse(s),
                 [KnownFields.GeboortedatumPartner] =
-                    s => ParseOptionalDateOnly(s, "yyyyMMdd"),
+                    s => ParseDateOnlyOrValue(
+                        s, 
+                        "yyyyMMdd", 
+                        null),
                 [KnownFields.WwbBedragPartner] =
-                    Evaluators.ParseOptionalInt,
+                    s => DataEvaluators.ParseIntOrValue(s, null),
                 [KnownFields.IngangsdatumRecht] =
                     s => DateOnly.ParseExact(s, "yyyyMMdd"),
                 [KnownFields.EinddatumRecht] =
-                    s => Evaluators.ParseOptionalDateOnly(s, "yyyyMMdd"),
+                    s => DataEvaluators.ParseDateOnlyOrValue(
+                        s, 
+                        "yyyyMMdd", 
+                        null),
             });
 
 
@@ -61,25 +67,20 @@ internal static class Evaluators
                     s => int.Parse(s),
                 [KnownFields.TotaalAantalGerechtigden] =
                     s => int.Parse(s),
+                [KnownFields.TotaalWwbBedrag] =
+                    s => int.Parse(s),
             });
     
-    private static object? ParseOptionalInt(string s)
-    {
-        if (int.TryParse(s, out var result))
-        {
-            return result;
-        }
+    private static object? ParseIntOrValue(string s, object? value) =>
+        int.TryParse(s, out var result) 
+            ? result 
+            : value;
 
-        return null;
-    }
-
-    private static object? ParseOptionalDateOnly(string s, string format)
-    {
-        if (DateOnly.TryParseExact(s, format, out var result)) 
-        {
-            return result;
-        }
-
-        return null;
-    }
+    private static object? ParseDateOnlyOrValue(
+        string s, 
+        string format, 
+        object? value) =>
+            DateOnly.TryParseExact(s, format, out var result) 
+                ? result 
+                : value;
 }

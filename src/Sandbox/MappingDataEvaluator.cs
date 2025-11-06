@@ -38,7 +38,7 @@ public class MappingDataEvaluator : IDataEvaluator
 
         try
         {
-            this.Evaluate(data);
+            result = this.Evaluate(data);
             return true;
         }
         catch

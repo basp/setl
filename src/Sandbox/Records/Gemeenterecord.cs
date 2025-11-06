@@ -3,7 +3,7 @@ namespace Sandbox.Records;
 
 internal class Gemeenterecord : AowAioRecord
 {
-    public string Gemeentecode { get; set; }
+    public int Gemeentecode { get; set; }
 
     public int Verwerkingsjaar { get; set; }
 
