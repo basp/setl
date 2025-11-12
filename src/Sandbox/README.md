@@ -133,9 +133,9 @@ De standaard comparer is `StringComparer.InvariantCulture`.
 ## Tips
 * Een `Row` object is van nature behoorlijk dynamisch. Als er bepaalde velden
 zijn die een belangrijke rol spelen in het proces dan is het een goed idee om
-deze te definieren (als `static` of `const` in bijvoorbeeld een `WellKnownFields` 
-type).
-* Vergeet niet dat Het mogelijk is om elk object of object structuur op te 
+de namen hiervan te definieren (als `static` of `const` in bijvoorbeeld een 
+`WellKnownFields` type).
+* Vergeet niet dat het mogelijk is om elk object of object structuur op te 
 slaan in velden van een `Row` object. Het grootste probleem hier is om ze later 
 in het proces weer naar de juiste types te converteren.
 * Zelfs anonieme objecten zijn geen probleem - maar hoe krijg je ze eruit? Hier
