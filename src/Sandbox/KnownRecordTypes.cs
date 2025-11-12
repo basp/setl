@@ -1,6 +1,6 @@
 ﻿namespace Sandbox;
 
-public static class KnownRecordType
+public static class KnownRecordTypes
 {
     public const string Ber = "BER";
     public const string Gem = "GEM";

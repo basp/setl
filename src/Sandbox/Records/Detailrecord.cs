@@ -3,8 +3,6 @@ namespace Sandbox.Records;
 
 internal class Detailrecord : AowAioRecord
 {
-    public string Gemeentecode { get; set;  }
-    
     public string SofinummerHp { get; set; }
 
     public string AchternaamHp { get; set; }

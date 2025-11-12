@@ -111,7 +111,7 @@ internal class DetailValidator : DataValidator
 		{
 			valid = false;
             var context = new ValidationErrorContext(line, data);
-            this.handlers.OnBsnHpNietNumeriek(context);
+            this.handlers.OnBsnPNietNumeriek(context);
 		}
 		else if (!this.Validate11Proef(data[KnownFields.BsnPartner]))
 		{
@@ -145,5 +145,5 @@ internal class DetailValidator : DataValidator
 		return valid;
 	}
 
-	private bool IsZeroDate(string value) => value == ZeroDate;
+	private static bool IsZeroDate(string value) => value == ZeroDate;
 }
