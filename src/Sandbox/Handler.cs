@@ -29,11 +29,11 @@ public class Handler
         var lines = preprocessor.Parse(File.ReadLines(path));
         var report = processor.Process(lines);
 
-        Console.WriteLine("Total number of records  : " + report.TotalNumberOfRecords);
-        Console.WriteLine("Total number of processed: " + report.NumberOfProcessedRecords);
-        Console.WriteLine("Totaal foutieve records  : " + report.NumberOfFailedRecords);
+        Console.WriteLine("Totaal aantal records : " + report.TotalNumberOfRecords);
+        Console.WriteLine("Totaal aantal verwerkt: " + report.NumberOfProcessedRecords);
+        Console.WriteLine("Totaal foutief        : " + report.NumberOfFailedRecords);
         
-        // TODO: Work page aanmaken met verwerkingsverslag
+        // TODO: Work package aanmaken met verwerkingsverslag
         // TODO: ProcessingReportDataReceived event publiceren
         
         if (!report.IsValid)
@@ -42,8 +42,8 @@ public class Handler
             // Specifieke informatie over de fouten is in de details
             // van het verslag terug te vinden.
             
-            // TODO: ProcesMonitoringHelper.AddFailureProcessStepAction
-            // TODO: this.logger.LogError
+            // TODO: Procesmonitoring
+            // TODO: Logging
             
             PrintErrors(errors);
             
@@ -57,8 +57,10 @@ public class Handler
             
             // Op dit moment weten we dat niet alleen de individuele records
             // juist zijn, maar ook dat de structuur van het bestand voldoet
-            // aan onze verwachtingen.
-            PrintResults(bericht, tellingen);
+            // aan onze verwachtingen. We zijn klaar om de resultaten door
+            // te sturen naar de rapportageservice.
+            
+            // TODO: Publicatie van ProductEnriched event op message queue
         }
         catch (InvalidOperationException)
         {
@@ -74,8 +76,8 @@ public class Handler
             // bericht ontvangen hebben *of* dat onze verwachtingen niet
             // kloppen.
 
-            // TODO: ProcessMonitoringHelper.AddFailureProcessStepAction
-            // TODO: this.logger.LogError
+            // TODO: Procesmonitoring
+            // TODO: Logging
         }
     }
 

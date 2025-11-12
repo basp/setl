@@ -1,6 +1,6 @@
 ﻿namespace Sandbox.Records;
 
-internal class Tellingenrecord : AowAioRecord
+internal record Tellingenrecord : AowAioRecord
 {
     public string Gemeentecode { get; set; } = string.Empty;
 

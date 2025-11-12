@@ -9,9 +9,74 @@ namespace Sandbox;
 
 internal class LineProcessor : ILineProcessor
 {
+    // Processing error handlers worden gebruikt om fouten op regelniveau
+    // te behandelen. Er gaat in dit geval iets mis met de hele regel,
+    // de structuur klopt bijvoorbeeld niet of hij kan uiteindelijk niet
+    // geconverteerd worden naar een record.
     private readonly IProcessingErrorHandlers processingErrorHandlers;
+    
+    // Validation error handlers worden gebruikt om validatiefouten specifiek
+    // en op kolomniveau te behandelen. In dit geval is de structuur van de
+    // regel correct, maar is er met de inhoud van één of meer specifieke
+    // velden iets mis.
     private readonly IValidationErrorHandlers validationErrorHandlers;
+    
+    // De visitor wordt gebruikt om de specifieke records te bezoeken en
+    // daaruit een groepering (normaal op gemeenteniveau) te destilleren.
+    // Tevens is dit object ook verantwoordelijk voor het valideren van de
+    // structuur van het bericht.
     private readonly IRecordVisitor visitor;
+
+    // Parsers worden gebruikt om de *data* sectie van elke regel op te splitsen
+    // in lijst van (veldnaam, tekstwaarde) paren (i.e. een dictionary met tekst
+    // keys en tekst waardes).
+    private static readonly Dictionary<string, IFixedWidthParser> Parsers = new()
+    {
+        [KnownRecordTypes.Ber] = DataParsers.BerichtdataParser,
+        [KnownRecordTypes.Gem] = DataParsers.GemeentedataParser,
+        [KnownRecordTypes.Dtr] = DataParsers.DetaildataParser,
+        [KnownRecordTypes.Tpg] = DataParsers.TellingdataParser,       
+    };
+
+    // Evaluators worden gebruikt om de waardes van tekstuele naam-waarde paren
+    // om te zetten naar getypeerde waardes (een dictionary met tekst keys en
+    // object waardes).
+    private static readonly Dictionary<string, IDataEvaluator> Evaluators = new()
+    {
+        [KnownRecordTypes.Ber] = DataEvaluators.BerichtEvaluator,
+        [KnownRecordTypes.Gem] = DataEvaluators.GemeenteEvaluator,
+        [KnownRecordTypes.Dtr] = DataEvaluators.DetailEvaluator,
+        [KnownRecordTypes.Tpg] = DataEvaluators.TellingdataEvaluator,
+    };
+
+    // Converters worden uiteindelijk gebruikt om een set van typed 
+    // naam-waarde paren om te zetten naar een instantie van een strong
+    // typed record. Ze zijn hier relatief *lui* gedefinieerd met kale
+    // functies, maar we zouden ook kunnen overwegen om hier een interface
+    // voor te definieren.
+    private static readonly Dictionary<string, Func<Line, Row, IRecord>> Converters = new()
+    {
+        [KnownRecordTypes.Ber] = (line, row) =>
+        {
+            var record = row.ToObject<Berichtrecord>();
+            return record with { Line = line };
+        },
+        [KnownRecordTypes.Gem] = (line, row) =>
+        {
+            var record = row.ToObject<Gemeenterecord>();
+            return record with { Line = line };
+        },       
+        [KnownRecordTypes.Dtr] = (line, row) =>
+        {
+            var record = row.ToObject<Detailrecord>();
+            return record with { Line = line };
+        },       
+        [KnownRecordTypes.Tpg] = (line, row) =>
+        {
+            var record = row.ToObject<Tellingenrecord>();
+            return record with { Line = line };
+        },       
+    };
     
     public LineProcessor(
         IProcessingErrorHandlers processingErrorHandlers,
@@ -25,66 +90,33 @@ internal class LineProcessor : ILineProcessor
     
     public ProcessingReportSummary Process(IEnumerable<Line> lines)
     {
-        var parsers = new Dictionary<string, IFixedWidthParser>
-        {
-            [KnownRecordTypes.Ber] = DataParsers.BerichtdataParser,
-            [KnownRecordTypes.Gem] = DataParsers.GemeentedataParser,
-            [KnownRecordTypes.Dtr] = DataParsers.DetaildataParser,
-            [KnownRecordTypes.Tpg] = DataParsers.TellingdataParser,       
-        };
-
+        // Validators zijn niet static gedefinieerd omdat ze afhankelijk zijn
+        // van `validationErrorHandlers` en deze instantie wordt runtime
+        // geinjecteerd via de constructor. Deze instanties zijn
+        // verantwoordelijk voor het uitvoeren van de daadwerkelijke validaatie
+        // afhankelijk van de regelcode.
         var validators = new Dictionary<string, DataValidator>
         {
-            [KnownRecordTypes.Ber] = new BerichtValidator(validationErrorHandlers),
-            [KnownRecordTypes.Gem] = new GemeenteValidator(validationErrorHandlers),
-            [KnownRecordTypes.Dtr] = new DetailValidator(validationErrorHandlers),
-            [KnownRecordTypes.Tpg] = new TellingenValidator(validationErrorHandlers),
+            [KnownRecordTypes.Ber] = new BerichtValidator(this.validationErrorHandlers),
+            [KnownRecordTypes.Gem] = new GemeenteValidator(this.validationErrorHandlers),
+            [KnownRecordTypes.Dtr] = new DetailValidator(this.validationErrorHandlers),
+            [KnownRecordTypes.Tpg] = new TellingenValidator(this.validationErrorHandlers),
         };
 
-        var evaluators = new Dictionary<string, IDataEvaluator>
-        {
-            [KnownRecordTypes.Ber] = DataEvaluators.BerichtEvaluator,
-            [KnownRecordTypes.Gem] = DataEvaluators.GemeenteEvaluator,
-            [KnownRecordTypes.Dtr] = DataEvaluators.DetailEvaluator,
-            [KnownRecordTypes.Tpg] = DataEvaluators.TellingdataEvaluator,
-        };
-
-        var converters = new Dictionary<string, Func<Line, Row, IRecord>>
-        {
-            [KnownRecordTypes.Ber] = (line, row) =>
-            {
-                var record = row.ToObject<Berichtrecord>();
-                record.Line = line;
-                return record;
-            },
-            [KnownRecordTypes.Gem] = (line, row) =>
-            {
-                var record = row.ToObject<Gemeenterecord>();
-                record.Line = line;
-                return record;
-            },       
-            [KnownRecordTypes.Dtr] = (line, row) =>
-            {
-                var record = row.ToObject<Detailrecord>();
-                record.Line = line;
-                return record;
-            },       
-            [KnownRecordTypes.Tpg] = (line, row) =>
-            {
-                var record = row.ToObject<Tellingenrecord>();
-                record.Line = line;
-                return record;
-            },       
-        };
-        
+        // Het totaal aantal rijen (records) dat we te verwerken kregen.
+        // Dit zou gelijk moeten zijn aan het regels in het ontvangen bestand.
         var totalNumberOfRecords = 0;
-        var totalNumberProcessed = 0;
+        
+        // Het aantal records dat het daadwerkelijk door (het grootste deel)
+        // van de verwerking geschopt heeft. Dit aantal moet altijd minder or
+        // gelijk zijn aan het totaal aantal verwerkingsfouten.
+        var numberOfProcessedRecords = 0;
         
         foreach (var line in lines)
         {
             totalNumberOfRecords += 1;
             
-            if (!parsers.TryGetValue(line.Code, out var parser))
+            if (!Parsers.TryGetValue(line.Code, out var parser))
             {
                 // Geen parser geregistreerd voor de code behorende
                 // bij deze regel. Kan zijn dat we een rare code uitlezen
@@ -120,7 +152,7 @@ internal class LineProcessor : ILineProcessor
                 continue;
             }
             
-            if (!evaluators.TryGetValue(line.Code, out var evaluator))
+            if (!Evaluators.TryGetValue(line.Code, out var evaluator))
             {
                 // Rare code of vergeten evaluatie te registreren.
                 this.processingErrorHandlers.OnOnbekendeEvaluatie(line);
@@ -138,7 +170,7 @@ internal class LineProcessor : ILineProcessor
                 continue;
             }
 
-            if (!converters.TryGetValue(line.Code, out var converter))
+            if (!Converters.TryGetValue(line.Code, out var converter))
             {
                 // Rare code of vergeten conversie te registreren.
                 this.processingErrorHandlers.OnOnbekendeConversie(line);
@@ -147,15 +179,22 @@ internal class LineProcessor : ILineProcessor
 
             try
             {
+                // Beetje risky here, standaard converters gebruiken onder de
+                // motorkap `ToObject<T>` van `Row` en deze is niet super
+                // intelligent.
                 var record = converter(line, row);
-                record.Accept(visitor);
+                
+                // Visitor kan potentieel ook exceptions opleveren indien er
+                // iets mis is in de structuur (volgorde van records) in het
+                // ontvangen bestand.
+                record.Accept(this.visitor);
                 
                 // Als we op dit punt aanbeland zijn dan zijn alle validaties,
                 // evaluaties en conversies op regelniveau (recordniveau)
                 // geslaagd. Er kan echter later nog steeds iets mis gaan als
                 // bijvoorbeeld de volgorde van de records niet juist is of
                 // als bepaalde sleutelrecords (`BER`, `GEM` en `TPG`) ontbreken.
-                totalNumberProcessed += 1;
+                numberOfProcessedRecords += 1;
             }
             catch (InvalidOperationException ex)
             {
@@ -168,23 +207,27 @@ internal class LineProcessor : ILineProcessor
                 // een conversie naar `int` gedaan wordt, maar de bijbehorende
                 // property op het record gedefinieerd is als `string`.
                 // Of anders gezegd, in het algemeen als er een verschil is
-                // tussen de evaluatie voor een bepaald veld en bijbehorende
-                // property op het record.
+                // tussen het type van de evaluatie voor een bepaald veld en
+                // bijbehorende property op het record.
                 this.processingErrorHandlers.OnMislukteConversie(line, ex);
             }
         }
         
-        // Zou minder of gelijk moeten zijn aan het totaal aantal fouten.
-        var numberOfFailed = totalNumberOfRecords - totalNumberProcessed;
+        // Zou minder of gelijk moeten zijn aan het aantal fouten in de error
+        // lijst (er kunnen meerdere fouten per regel optreden).
+        var numberOfFailed = totalNumberOfRecords - numberOfProcessedRecords;
         var generalErrorMessage =
             numberOfFailed > 0
                 ? $"Er zijn {numberOfFailed} fouten opgetreden. Zie details voor meer informatie."
                 : string.Empty;
-            
+
+        // Het bijhouden van individuele verwerkingsfouten is aan de client
+        // die deze klasse gebruikt (via de geinjecteerde error handlers).
+        // Wij geven hier alleen maar een overzicht terug.
         return new ProcessingReportSummary
         {
             TotalNumberOfRecords = totalNumberOfRecords,
-            NumberOfProcessedRecords = totalNumberProcessed,
+            NumberOfProcessedRecords = numberOfProcessedRecords,
             NumberOfFailedRecords = numberOfFailed,
             GeneralErrorMessage = generalErrorMessage,
             IsValid = numberOfFailed == 0,
