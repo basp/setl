@@ -1,4 +1,6 @@
-﻿namespace Sandbox;
+﻿using Sandbox.Entities;
+
+namespace Sandbox;
 
 internal interface ILineProcessor
 {

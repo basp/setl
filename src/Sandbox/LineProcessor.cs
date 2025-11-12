@@ -1,4 +1,5 @@
-﻿using Sandbox.Parsing;
+﻿using Sandbox.Entities;
+using Sandbox.Parsing;
 using Sandbox.Records;
 using Sandbox.Support;
 using Sandbox.Text;

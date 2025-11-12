@@ -1,4 +1,4 @@
-﻿namespace Sandbox;
+﻿namespace Sandbox.Entities;
 
 public record ProcessingErrorData
 {
