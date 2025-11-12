@@ -16,4 +16,9 @@ internal class Berichtrecord : AowAioRecord
     public DateOnly DatumAanmaakBericht { get; set; }
 
     public string ReferentieLevering { get; set; }
+    
+    public override void Accept(IRecordVisitor visitor)
+    {
+        visitor.VisitBericht(this);
+    }
 }

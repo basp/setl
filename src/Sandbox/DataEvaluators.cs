@@ -2,29 +2,26 @@
 
 internal static class DataEvaluators
 {
-    // public static readonly IDataEvaluator BerichtEvaluator =
-    //     new MappingDataEvaluator(
-    //         new Dictionary<string, Func<string, object?>>
-    //         {
-    //             [KnownFields.FunctieVersie] = 
-    //                 s => int.Parse(s),
-    //             [KnownFields.CodeSectorLeverancier] = 
-    //                 s => int.Parse(s),
-    //             [KnownFields.CodeSectorAanvrager] = 
-    //                 s => int.Parse(s),
-    //             [KnownFields.DatumAanmaakBericht] = 
-    //                 s => DateOnly.ParseExact(s, "yyyyMMdd"),
-    //         });
-    
     public static readonly IDataEvaluator BerichtEvaluator =
-        DataEvaluatorFactory.CreateBerichtEvaluator();
-
+        new MappingDataEvaluator(
+            new Dictionary<string, Func<string, object?>>
+            {
+                [KnownFields.FunctieVersie] = 
+                    s => int.Parse(s),
+                [KnownFields.CodeSectorLeverancier] = 
+                    s => int.Parse(s),
+                [KnownFields.CodeSectorAanvrager] = 
+                    s => int.Parse(s),
+                [KnownFields.DatumAanmaakBericht] = 
+                    s => DateOnly.ParseExact(s, "yyyyMMdd"),
+            });
+    
     public static readonly IDataEvaluator GemeenteEvaluator =
         new MappingDataEvaluator(
             new Dictionary<string, Func<string, object?>>
             {
-                [KnownFields.Gemeentecode] = 
-                    s => int.Parse(s),
+                // [KnownFields.Gemeentecode] = 
+                //     s => int.Parse(s),
                 [KnownFields.Verwerkingsjaar] =
                     s => int.Parse(s),
                 [KnownFields.Verwerkingsmaand] =
@@ -39,8 +36,8 @@ internal static class DataEvaluators
                     s => DateOnly.ParseExact(s, "yyyyMMdd"),
                 [KnownFields.WwbBedragHoofdpersoon] =
                     s => int.Parse(s),
-                [KnownFields.PostcodeNumeriek] =
-                    s => int.Parse(s),
+                // [KnownFields.PostcodeNumeriek] =
+                //     s => int.Parse(s),
                 [KnownFields.Huisnummer] =
                     s => int.Parse(s),
                 [KnownFields.GeboortedatumPartner] =
@@ -64,8 +61,8 @@ internal static class DataEvaluators
         new MappingDataEvaluator(
             new Dictionary<string, Func<string, object?>>
             {
-                [KnownFields.Gemeentecode] =
-                    s => int.Parse(s),
+                // [KnownFields.Gemeentecode] =
+                //     s => int.Parse(s),
                 [KnownFields.TotaalAantalHuishoudens] = 
                     s => int.Parse(s),
                 [KnownFields.TotaalAantalGerechtigden] =

@@ -4,15 +4,6 @@ namespace Sandbox.Validation;
 
 internal abstract class DataValidator
 {
-    protected void ReportValidationError(
-        Action<ValidationErrorContext> handler,
-        Line line,
-        Dictionary<string, string> data)
-    {
-        var context = new ValidationErrorContext(line, data);
-        handler(context);
-    }
-	
     public abstract bool Validate(
         Line line,
         Dictionary<string, string> data);

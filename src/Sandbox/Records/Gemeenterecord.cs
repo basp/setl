@@ -3,9 +3,14 @@ namespace Sandbox.Records;
 
 internal class Gemeenterecord : AowAioRecord
 {
-    public int Gemeentecode { get; set; }
+    public string Gemeentecode { get; set; } = string.Empty;
 
     public int Verwerkingsjaar { get; set; }
 
     public int Verwerkingsmaand { get; set; }
+    
+    public override void Accept(IRecordVisitor visitor)
+    {
+        visitor.VisitGemeente(this);
+    }
 }

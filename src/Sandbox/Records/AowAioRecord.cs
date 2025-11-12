@@ -1,9 +1,7 @@
 ﻿#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 namespace Sandbox.Records;
 
-internal abstract class AowAioRecord
+internal abstract class AowAioRecord : IRecord
 {
-    int Regelnummer { get; set; }
-
-    string Recordcode { get; set; }
+    public abstract void Accept(IRecordVisitor visitor);
 }

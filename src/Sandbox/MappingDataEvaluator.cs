@@ -62,6 +62,7 @@ public class MappingDataEvaluator : IDataEvaluator
         }
     }
 
+    /*
     public T Evaluate<T>(Dictionary<string, string> data)
     {
         var row = this.Evaluate(data);
@@ -80,4 +81,5 @@ public class MappingDataEvaluator : IDataEvaluator
         result = row.ToObject<T>();
         return true;
     }
+    */
 }
