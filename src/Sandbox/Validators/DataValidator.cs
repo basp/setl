@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Sandbox.Validation;
+namespace Sandbox.Validators;
 
 internal abstract class DataValidator
 {

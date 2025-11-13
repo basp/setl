@@ -3,7 +3,7 @@ namespace Sandbox.Records;
 
 internal abstract record AowAioRecord : IRecord
 {
-    public Line Line { get; set; }
+    public Line Line { get; init; }
 
     public abstract void Accept(IRecordVisitor visitor);
 }

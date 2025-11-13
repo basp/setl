@@ -3,7 +3,7 @@ using Sandbox.Parsing;
 using Sandbox.Records;
 using Sandbox.Support;
 using Sandbox.Text;
-using Sandbox.Validation;
+using Sandbox.Validators;
 
 namespace Sandbox;
 
@@ -93,8 +93,8 @@ internal class LineProcessor : ILineProcessor
         // Validators zijn niet static gedefinieerd omdat ze afhankelijk zijn
         // van `validationErrorHandlers` en deze instantie wordt runtime
         // geinjecteerd via de constructor. Deze instanties zijn
-        // verantwoordelijk voor het uitvoeren van de daadwerkelijke validaatie
-        // afhankelijk van de regelcode.
+        // verantwoordelijk voor het uitvoeren van de daadwerkelijke validatie
+        // die afhankelijk is van de regelcode.
         var validators = new Dictionary<string, DataValidator>
         {
             [KnownRecordTypes.Ber] = new BerichtValidator(this.validationErrorHandlers),
@@ -119,7 +119,7 @@ internal class LineProcessor : ILineProcessor
             if (!Parsers.TryGetValue(line.Code, out var parser))
             {
                 // Geen parser geregistreerd voor de code behorende
-                // bij deze regel. Kan zijn dat we een rare code uitlezen
+                // bij deze regel. Kan zijn dat we een onbekende code uitlezen
                 // of dat we vergeten zijn om de bijbehorende parser te
                 // registreren.
                 this.processingErrorHandlers.OnOnbekendeParser(line);
@@ -223,7 +223,7 @@ internal class LineProcessor : ILineProcessor
 
         // Het bijhouden van individuele verwerkingsfouten is aan de client
         // die deze klasse gebruikt (dit gebeurt via de geinjecteerde error
-        // handlers). Wij geven hier alleen maar een overzicht terug.
+        // handlers). Wij geven hier alleen maar een samenvatting terug.
         return new ProcessingReportSummary
         {
             TotalNumberOfRecords = totalNumberOfRecords,

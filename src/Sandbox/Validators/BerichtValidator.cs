@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Validation;
+﻿namespace Sandbox.Validators;
 
 internal class BerichtValidator : DataValidator
 {

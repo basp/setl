@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Validation;
+﻿namespace Sandbox;
 
 internal interface IValidationErrorHandlers
 {
