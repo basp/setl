@@ -136,7 +136,7 @@ internal class LineProcessor : ILineProcessor
 
             if (!validators.TryGetValue(line.Code, out var validator))
             {
-                // Rare code of vergeten validatie te registreren.
+                // Onbekende regelcode of vergeten validatie te registreren.
                 this.processingErrorHandlers.OnOnbekendeValidatie(line);
                 continue;
             }
@@ -154,7 +154,7 @@ internal class LineProcessor : ILineProcessor
             
             if (!Evaluators.TryGetValue(line.Code, out var evaluator))
             {
-                // Rare code of vergeten evaluatie te registreren.
+                // Onbekende regelcode of vergeten evaluatie te registreren.
                 this.processingErrorHandlers.OnOnbekendeEvaluatie(line);
                 continue;
             }
@@ -172,7 +172,7 @@ internal class LineProcessor : ILineProcessor
 
             if (!Converters.TryGetValue(line.Code, out var converter))
             {
-                // Rare code of vergeten conversie te registreren.
+                // Onbekende regelcode of vergeten conversie te registreren.
                 this.processingErrorHandlers.OnOnbekendeConversie(line);
                 continue;
             }
@@ -222,8 +222,8 @@ internal class LineProcessor : ILineProcessor
                 : string.Empty;
 
         // Het bijhouden van individuele verwerkingsfouten is aan de client
-        // die deze klasse gebruikt (via de geinjecteerde error handlers).
-        // Wij geven hier alleen maar een overzicht terug.
+        // die deze klasse gebruikt (dit gebeurt via de geinjecteerde error
+        // handlers). Wij geven hier alleen maar een overzicht terug.
         return new ProcessingReportSummary
         {
             TotalNumberOfRecords = totalNumberOfRecords,

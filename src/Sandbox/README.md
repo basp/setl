@@ -51,7 +51,7 @@ implementatie te gebruiken door middel van de `IValueConverter` interface. Dit
 kan bijvoorbeeld handig zijn als je een nul-datum (`00000000`) wilt converteren
 naar een `null` waarde of iets in die geest.
 
-#### FromObject & ToObject
+#### Mapping
 Het is vrij eenvoudig om een `Row` object te maken van een regulier object met
 behulp van de `FromObject` method en omgekeerd om een `Row` om te vormen naar
 een regulier object met behulp van de `ToObject` method.
@@ -81,7 +81,11 @@ dynamic dyn = Row.FromObject(obj);
 Console.WriteLine(dyn.Name);
 Console.WriteLine(dyn.Description);
 
-record Item(string Name, string Description);
+record Item
+{
+    public string Name { get; init; } = "";
+    public string Description { get; init; } = "";
+}
 
 var recDict = dict.ToObject<Item>();
 Console.WriteLine(recDict.Name);
