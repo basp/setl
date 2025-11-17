@@ -1,16 +1,11 @@
-﻿# AOW AIO Verwerking
-
-## Appendix: `Row`
-Ergens tijdens de latere stappen van de verwerking wordt er gebruik gemaakt van 
-`Row` objecten. Het gebruik hiervan is enigszins onconventioneel binnen de
-huidige codebase, vandaar wat nadere uitleg.
-
+﻿# Row
 ### Introductie
 In essentie is een `Row` niets anders dan een `IDictionary<string, object?>`
 en elk object van het type `Row` kan dus gebruikt worden als een *dictionary* met
 dezelfde type argumenten (`<string, object?>`). Het is eenvoudig om een `Row` te 
 maken op basic van zo'n dictionary (via de constructor) en omgekeerd (via de 
 interface) en afgezien van wat nuance kunnen we een `Row` object beschouwen als 
+
 een reguliere generic dictionary.
 
 ### Features
@@ -160,6 +155,6 @@ aantrekkelijk om een proces op te delen in kleine stappen (die gebruik maken van
 het een goed idee om de `Clone` method te gebruiken en zodoende niet de
 bestaande `Row` aan te passen. Dit kan problemen helpen te voorkomen in
 scenario's waarin meerdere threads aan hetzelfde proces werken.
-* Maak gebruik van  `dynamic` tijdens ontwikkeling en prototyping, maar vermijd 
+* Maak gebruik van `dynamic` tijdens ontwikkeling en prototyping, maar vermijd 
 in productiecode waar mogelijk. Gebruik *normale* dictionary access en 
 definieer constanten voor veldnamen.

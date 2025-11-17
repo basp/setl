@@ -18,7 +18,7 @@ public class Handler
         var errors = new List<ProcessingErrorData>();
         var processingErrorHandlers = new ProcessingErrorHandlers(errors);
         var validationErrorHandlers = new ValidationErrorHandlers(errors);
-        var visitor = new AccumulatingRecordVisitor();
+        var visitor = new AggregatingRecordVisitor();
         
         var processor = new LineProcessor(
             processingErrorHandlers, 
@@ -88,7 +88,7 @@ public class Handler
         }
     }
 
-    private static void PrintResults(Berichtrecord bericht, List<AccumulatedResult> tellingen)
+    private static void PrintResults(Berichtrecord bericht, List<AggregatedResult> tellingen)
     {
         var opts = new JsonSerializerOptions
         {
@@ -100,7 +100,7 @@ public class Handler
         Console.WriteLine(JsonSerializer.Serialize(tellingen, opts));
     }
 
-    private record AccumulatedResult(Gemeenterecord Gemeente)
+    private record AggregatedResult(Gemeenterecord Gemeente)
     {
         public List<Detailrecord> Details { get; set; } = [];
         
@@ -302,14 +302,14 @@ public class Handler
         }
     }
     
-    private class AccumulatingRecordVisitor : IRecordVisitor
+    private class AggregatingRecordVisitor : IRecordVisitor
     {
-        private readonly Stack<AccumulatedResult> current = new();
+        private readonly Stack<AggregatedResult> current = new();
 
         private readonly List<Berichtrecord> berichten = [];
-        private readonly List<AccumulatedResult> results = [];
+        private readonly List<AggregatedResult> results = [];
         
-        public (Berichtrecord, List<AccumulatedResult>) GetResults()
+        public (Berichtrecord, List<AggregatedResult>) GetResults()
         {
             if (this.berichten.Count == 0)
             {
@@ -339,12 +339,12 @@ public class Handler
                 // Hier hebben we een `GEM` regel maar voor de
                 // vorige `GEM` zijn we nog geen `TPG` tegengekomen.
                 var gemeentecode = this.current.Peek().Gemeente;
-                var message = $"Gemeenterecord zonder `TPG` voor gemeente {gemeentecode.Gemeentecode}";
+                var message = $"Gemeenterecord zonder `TPG` voor vorige gemeente {gemeentecode.Gemeentecode}";
                 throw new InvalidOperationException(message);
             }
             
-            var acc = new AccumulatedResult(record);
-            this.current.Push(acc);
+            var aggregate = new AggregatedResult(record);
+            this.current.Push(aggregate);
         }
 
         public void VisitDetail(Detailrecord record)
@@ -353,12 +353,12 @@ public class Handler
             {
                 // Hier hebben we een `DTR` regel maar we zijn geen
                 // bijbehorende `GEM` regel tegengekomen.
-                var message = $"Detailrecord zonder `GEM` regel";
+                const string message = $"Detailrecord zonder geldige `GEM` regel";
                 throw new InvalidOperationException(message);
             }
             
-            var acc = this.current.Peek();
-            acc.Details.Add(record);
+            var aggregate = this.current.Peek();
+            aggregate.Details.Add(record);
         }
 
         public void VisitTellingen(Tellingenrecord record)
@@ -367,21 +367,21 @@ public class Handler
             {
                 // Hier hebben we een `TPG` regel maar we hebben
                 // geen bijbehorende `GEM` regel gezien.
-                var message = $"Tellingenrecord zonder `GEM` regel";
+                const string message = $"Tellingenrecord zonder geldige `GEM` regel";
                 throw new InvalidOperationException(message);
             }
             
-            var acc = this.current.Pop();
-            if (acc.Gemeente.Gemeentecode != record.Gemeentecode)
+            var aggregate = this.current.Pop();
+            if (aggregate.Gemeente.Gemeentecode != record.Gemeentecode)
             {
                 // We hebben een `GEM` maar nu komen we een `TPG` tegen
                 // met een andere gemeentecode.
-                var message = $"Gemeentecode verschilt tussen `GEM` en `TPG` regels";
-                throw new InvalidOperationException(message);           
+                const string message = $"Gemeentecode verschilt tussen `GEM` en `TPG` regels";
+                throw new InvalidOperationException(message);
             }
             
-            acc.Tellingen = record;
-            this.results.Add(acc);
+            aggregate.Tellingen = record;
+            this.results.Add(aggregate);
         }
     }
 }
